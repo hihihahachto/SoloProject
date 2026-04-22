@@ -88,7 +88,7 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
         </div>
     <?php endif; ?>
 
-    <!-- ФОРМА ДОБАВЛЕНИЯ -->
+
     <div class="form-section">
         <h3>➕ Добавить новое животное</h3>
         <form method="POST">
@@ -128,7 +128,7 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
         </form>
     </div>
 
-    <!-- ФОРМА РЕДАКТИРОВАНИЯ ОСНОВНОЙ ИНФОРМАЦИИ -->
+
     <?php if ($edit): ?>
         <div class="form-section">
             <h3>✏️ Редактировать животное</h3>
@@ -172,7 +172,7 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
         </div>
     <?php endif; ?>
 
-    <!-- СПИСОК ЖИВОТНЫХ -->
+
     <h2>📋 Список животных</h2>
     <div style="overflow-x: auto;">
         <table style="width: 100%;">

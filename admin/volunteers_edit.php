@@ -70,7 +70,13 @@ $edit = isset($_GET['edit']) ? getVolunteerById($pdo, $_GET['edit']) : null;
 
     <h2>📋 Список волонтёров</h2>
     <table>
-        <tr><th>ID</th><th>ФИО</th><th>Телефон</th><th>Навык</th><th>Действия</th></tr>
+        <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Телефон</th>
+            <th>Навык</th>
+            <th>Действия</th>
+        </tr>
         <?php foreach ($volunteers as $vol): ?>
             <tr>
                 <td><?= $vol['id'] ?></td>
@@ -78,8 +84,8 @@ $edit = isset($_GET['edit']) ? getVolunteerById($pdo, $_GET['edit']) : null;
                 <td><?= $vol['phone'] ?></td>
                 <td><?= $vol['skill'] ?></td>
                 <td>
-                    <a href="volunteers_edit.php?edit=<?= $vol['id'] ?>" class="btn btn-gray">✏️</a>
-                    <a href="volunteers_edit.php?delete=<?= $vol['id'] ?>" class="btn btn-gray" onclick="return confirm('Удалить?')">🗑️</a>
+                    <a href="volunteers_edit.php?edit=<?= $vol['id'] ?>" class="btn btn-gray">Изменить</a>
+                    <a href="volunteers_edit.php?delete=<?= $vol['id'] ?>" class="btn btn-gray" onclick="return confirm('Удалить?')">Удалить</a>
                 </td>
             </tr>
         <?php endforeach; ?>

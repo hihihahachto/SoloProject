@@ -80,19 +80,19 @@ if ($species_filter == 'all') {
 
 <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
 
-    <!-- Блок фильтрации -->
+
     <div class="filter-bar">
-        <a href="?species=all" class="filter-btn <?= $species_filter == 'all' ? 'active' : '' ?>">🐾 Все</a>
-        <a href="?species=cat" class="filter-btn <?= $species_filter == 'cat' ? 'active' : '' ?>">🐱 Кошки</a>
-        <a href="?species=dog" class="filter-btn <?= $species_filter == 'dog' ? 'active' : '' ?>">🐕 Собаки</a>
+        <a href="?species=all" class="filter-btn <?= $species_filter == 'all' ? 'active' : '' ?>">Все</a>
+        <a href="?species=cat" class="filter-btn <?= $species_filter == 'cat' ? 'active' : '' ?>">Кошки</a>
+        <a href="?species=dog" class="filter-btn <?= $species_filter == 'dog' ? 'active' : '' ?>">Собаки</a>
     </div>
 
     <?php if ($species_filter == 'cat'): ?>
-        <div class="result-count">🐱 Показаны кошки (<?= count($animals) ?>)</div>
+        <div class="result-count">Показаны кошки (<?= count($animals) ?>)</div>
     <?php elseif ($species_filter == 'dog'): ?>
-        <div class="result-count">🐕 Показаны собаки (<?= count($animals) ?>)</div>
+        <div class="result-count">Показаны собаки (<?= count($animals) ?>)</div>
     <?php else: ?>
-        <div class="result-count">🐾 Все животные (<?= count($animals) ?>)</div>
+        <div class="result-count">Все животные (<?= count($animals) ?>)</div>
     <?php endif; ?>
 
     <div class="cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">

@@ -30,12 +30,12 @@ $volunteers = selectVolunteers($pdo);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
         .info-card h3 {
-            color: #1a5a1e;
+            color: #5a8a5a;
             margin-bottom: 15px;
-            border-left: 4px solid #2e7d32;
+            border-left: 4px solid #7eb07e;
             padding-left: 12px;
         }
         .info-card ul {
@@ -49,21 +49,18 @@ $volunteers = selectVolunteers($pdo);
             align-items: center;
             gap: 10px;
         }
-        .info-card li:last-child {
-            border-bottom: none;
-        }
         .need-badge {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #e0ecd0;
+            color: #4a6e4a;
             padding: 5px 12px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
         }
         .stat-number {
             font-size: 32px;
             font-weight: 700;
-            color: #1a5a1e;
+            color: #5a8a5a;
         }
         .quote {
             font-style: italic;
@@ -85,22 +82,20 @@ $volunteers = selectVolunteers($pdo);
 </div>
 
 <div class="volunteers-page">
-
-
-
+    <!-- Левая колонка: список волонтёров -->
     <div class="volunteers-list">
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
             <?php foreach ($volunteers as $vol): ?>
                 <div class="card" style="margin:0;">
                     <?php if ($vol['photo_url']): ?>
-                        <img src="<?= $vol['photo_url'] ?>" alt="<?= $vol['full_name'] ?>" style="height: 200px;">
+                        <img src="<?= $vol['photo_url'] ?>" class="card-img-top" alt="<?= $vol['full_name'] ?>" style="height: 200px; object-fit: cover;">
                     <?php else: ?>
-                        <img src="https://via.placeholder.com/300x200?text=Волонтёр" alt="Волонтёр" style="height: 200px;">
+                        <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=300" class="card-img-top" alt="Волонтёр" style="height: 200px; object-fit: cover;">
                     <?php endif; ?>
-                    <div style="padding: 20px;">
-                        <h3 style="margin: 0 0 5px 0;"><?= $vol['full_name'] ?></h3>
+                    <div class="card-body">
+                        <h3 style="margin: 0 0 5px 0;"><?= htmlspecialchars($vol['full_name']) ?></h3>
                         <p style="color: #666; margin-bottom: 10px;">📞 <?= $vol['phone'] ?></p>
-                        <span class="need-badge"><?= $vol['skill'] ?></span>
+                        <span class="need-badge"><?= $vol['skill_rus'] ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -117,18 +112,16 @@ $volunteers = selectVolunteers($pdo);
         </div>
     </div>
 
-
-
-
+    <!-- Правая колонка: информация -->
     <div class="info-sidebar">
         <div class="info-card">
             <h3>🌟 Почему волонтёры важны?</h3>
             <p>Без волонтёров приют не сможет существовать. Именно вы дарите животным:</p>
             <ul>
-                <li>🍲 🍗 Еду и воду</li>
-                <li>🚶 🐕 Прогулки и заботу</li>
-                <li>💊 🏥 Лечение и ласку</li>
-                <li>🏠 ❤️ Шанс на новый дом</li>
+                <li>🍲 Еду и воду</li>
+                <li>🚶 Прогулки и заботу</li>
+                <li>💊 Лечение и ласку</li>
+                <li>🏠 Шанс на новый дом</li>
             </ul>
         </div>
 
