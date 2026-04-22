@@ -2,51 +2,42 @@
 require_once '../model/models.php';
 
 $id = $_GET['id'] ?? 0;
-
-if ($id == 0) {
-    die("Ошибка: ID животного не указан");
-}
+if ($id == 0) die("Ошибка: ID не указан");
 
 $stmt = $pdo->prepare("SELECT * FROM animals WHERE id = ?");
 $stmt->execute([$id]);
 $animal = $stmt->fetch();
-
-if (!$animal) {
-    die("Животное не найдено");
-}
+if (!$animal) die("Животное не найдено");
 
 $details = detailsAnimal($pdo, $id);
 ?>
-
 <!doctype html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Лечение - <?= $animal['name'] ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f5f5f5; padding: 20px; }
-        .container-custom { max-width: 900px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; }
-        .animal-name { font-size: 32px; font-weight: bold; margin-bottom: 20px; text-align: center; }
-        .treatment-text { font-size: 16px; line-height: 1.6; color: #333; white-space: pre-wrap; }
-        .back-btn { margin-top: 30px; text-align: center; }
-        .back-btn a { background-color: #666; color: white; padding: 10px 30px; text-decoration: none; border-radius: 30px; display: inline-block; }
-    </style>
+    <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 
-<div class="container-custom">
-    <div class="animal-name"><?= $animal['name'] ?></div>
+<div class="header">
+    <h1>Лечение <span><?= $animal['name'] ?></span></h1>
+</div>
 
+<div style="max-width: 800px; margin: 40px auto; background: white; padding: 40px; border-radius: 20px;">
     <?php if ($details && $details['treatment_text']): ?>
-        <div class="treatment-text"><?= nl2br($details['treatment_text']) ?></div>
+        <p style="line-height: 1.8;"><?= nl2br($details['treatment_text']) ?></p>
     <?php else: ?>
-        <p style="text-align: center; color: #999;">Информация о лечении пока не добавлена</p>
+        <p style="text-align: center;">Информация о лечении пока не добавлена</p>
     <?php endif; ?>
 
-    <div class="back-btn">
-        <a href="animals.php">← Назад</a>
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="animals.php" class="btn" style="background:#6c757d;">← Назад</a>
     </div>
+</div>
+
+<div class="footer">
+    <p><a href="foundation.php">На главную</a></p>
 </div>
 
 </body>
