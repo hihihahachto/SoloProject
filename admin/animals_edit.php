@@ -16,14 +16,19 @@ if (isset($_GET['delete'])) {
 
 // Редактирование основной информации
 if (isset($_POST['edit'])) {
-    updateAnimal($pdo, $_POST['id'], $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
+    updateAnimal($pdo, $_POST['id'], $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url'], $_POST['character_desc'], $_POST['health_desc']);
     header('Location: animals_edit.php');
     exit;
 }
 
 // Добавление
 if (isset($_POST['add'])) {
-    addAnimal($pdo, $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
+    $animal_id = addAnimal($pdo, $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
+
+    $sql = "INSERT INTO animal_details (animal_id, character_desc, health_desc) VALUES ('$animal_id', '{$_POST['character_desc']}', '{$_POST['health_desc']}')";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+
     header('Location: animals_edit.php');
     exit;
 }
@@ -41,6 +46,7 @@ if (isset($_POST['update_treatment'])) {
 
 $animals = selectAnimals($pdo);
 $edit = isset($_GET['edit']) ? getAnimalById($pdo, $_GET['edit']) : null;
+$edit_details = $edit ? detailsAnimal($pdo, $edit['id']) : null;
 $treatment_animal_id = isset($_GET['treatment']) ? (int)$_GET['treatment'] : 0;
 $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id) : null;
 ?>
@@ -88,7 +94,7 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
         </div>
     <?php endif; ?>
 
-
+    <!-- ФОРМА ДОБАВЛЕНИЯ -->
     <div class="form-section">
         <h3>➕ Добавить новое животное</h3>
         <form method="POST">
@@ -124,11 +130,19 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
                 <label>Фото (ссылка):</label>
                 <input type="text" name="photo_url" placeholder="https://...">
             </div>
+            <div class="form-group">
+                <label>Характер:</label>
+                <textarea name="character_desc" rows="3" style="width:100%;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Здоровье:</label>
+                <textarea name="health_desc" rows="3" style="width:100%;"></textarea>
+            </div>
             <button type="submit" name="add" class="btn">➕ Добавить животное</button>
         </form>
     </div>
 
-
+    <!-- ФОРМА РЕДАКТИРОВАНИЯ -->
     <?php if ($edit): ?>
         <div class="form-section">
             <h3>✏️ Редактировать животное</h3>
@@ -141,9 +155,9 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
                 <div class="form-group">
                     <label>Вид:</label>
                     <select name="species">
-                        <option <?= $edit['species'] == 'кот' ? 'selected' : '' ?>>кот</option>
-                        <option <?= $edit['species'] == 'кошка' ? 'selected' : '' ?>>кошка</option>
-                        <option <?= $edit['species'] == 'собака' ? 'selected' : '' ?>>собака</option>
+                        <option value="кот" <?= $edit['species'] == 'кот' ? 'selected' : '' ?>>Кот</option>
+                        <option value="кошка" <?= $edit['species'] == 'кошка' ? 'selected' : '' ?>>Кошка</option>
+                        <option value="собака" <?= $edit['species'] == 'собака' ? 'selected' : '' ?>>Собака</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -157,14 +171,22 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
                 <div class="form-group">
                     <label>Статус:</label>
                     <select name="status">
-                        <option <?= $edit['status'] == 'waiting' ? 'selected' : '' ?>>waiting</option>
-                        <option <?= $edit['status'] == 'adopted' ? 'selected' : '' ?>>adopted</option>
-                        <option <?= $edit['status'] == 'treatment' ? 'selected' : '' ?>>treatment</option>
+                        <option value="waiting" <?= $edit['status'] == 'waiting' ? 'selected' : '' ?>>Ждёт хозяина</option>
+                        <option value="adopted" <?= $edit['status'] == 'adopted' ? 'selected' : '' ?>>Усыновлён</option>
+                        <option value="treatment" <?= $edit['status'] == 'treatment' ? 'selected' : '' ?>>На лечении</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Фото (ссылка):</label>
                     <input type="text" name="photo_url" value="<?= htmlspecialchars($edit['photo_url']) ?>">
+                </div>
+                <div class="form-group">
+                    <label>Характер:</label>
+                    <textarea name="character_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['character_desc'] ?? '') ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Здоровье:</label>
+                    <textarea name="health_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['health_desc'] ?? '') ?></textarea>
                 </div>
                 <button type="submit" name="edit" class="btn">💾 Сохранить</button>
                 <a href="animals_edit.php" class="btn btn-gray">Отмена</a>
@@ -172,7 +194,7 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
         </div>
     <?php endif; ?>
 
-
+    <!-- СПИСОК ЖИВОТНЫХ -->
     <h2>📋 Список животных</h2>
     <div style="overflow-x: auto;">
         <table style="width: 100%;">
@@ -187,11 +209,20 @@ $treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id)
                     <td><?= $animal['species'] ?></td>
                     <td><?= $animal['breed'] ?></td>
                     <td><?= $animal['age'] ?></td>
-                    <td><?= $animal['status'] ?></td>
+                    <td>
+                        <?php
+                        $status_ru = [
+                            'waiting' => 'Ждёт хозяина',
+                            'adopted' => 'Усыновлён',
+                            'treatment' => 'На лечении'
+                        ][$animal['status']] ?? $animal['status'];
+                        echo $status_ru;
+                        ?>
+                    </td>
                     <td>
                         <a href="animals_edit.php?edit=<?= $animal['id'] ?>" class="btn btn-gray btn-small">Изменить</a>
                         <a href="animals_edit.php?treatment=<?= $animal['id'] ?>" class="btn btn-gray btn-small">Лечение</a>
-                        <a href="animals_edit.php?delete=<?= $animal['id'] ?>" class="btn btn-gray btn-small" onclick="return confirm('Удалить?')">🗑️</a>
+                        <a href="animals_edit.php?delete=<?= $animal['id'] ?>" class="btn btn-gray btn-small" onclick="return confirm('Удалить?')">Удалить</a>
                     </td>
                 </tr>
             <?php endforeach; ?>

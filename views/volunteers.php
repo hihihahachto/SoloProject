@@ -46,10 +46,10 @@ $volunteers = selectVolunteers($pdo);
             padding: 10px 0;
             border-bottom: 1px solid #eee;
             display: flex;
-            align-items: center;
+            align-items: center;}
+        .
             gap: 10px;
-        }
-        .need-badge {
+        need-badge {
             background: #e0ecd0;
             color: #4a6e4a;
             padding: 5px 12px;
@@ -82,6 +82,7 @@ $volunteers = selectVolunteers($pdo);
 </div>
 
 <div class="volunteers-page">
+
     <!-- Левая колонка: список волонтёров -->
     <div class="volunteers-list">
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
@@ -149,7 +150,7 @@ $volunteers = selectVolunteers($pdo);
                 <li>✓ Благодарность животных и команды</li>
                 <li>✓ Новые знакомства и опыт</li>
                 <li>✓ Сертификат волонтёра</li>
-                <li>✓ Тёплые письма от питомцев 🐾</li>
+                <li>✓ Тёплые письма от питомцев</li>
             </ul>
         </div>
 

@@ -1,147 +1,169 @@
 <?php
+
 require_once 'config.php';
-
-// ========== СУЩЕСТВУЮЩИЕ ФУНКЦИИ (оставляем) ==========
-
 function selectAnimals($pdo)
 {
-    $stmt = $pdo->prepare("SELECT * FROM animals");
+    $sql = "SELECT * FROM animals";
+    $stmt = $pdo->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();
 }
 
 function detailsAnimal($pdo, $id)
 {
-    $stmt = $pdo->prepare("SELECT * FROM animal_details WHERE animal_id = ?");
-    $stmt->execute([$id]);
+    $sql = "SELECT * FROM animal_details WHERE animal_id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
     return $stmt->fetch();
 }
 
 function selectVolunteers($pdo)
 {
-    $stmt = $pdo->prepare("SELECT * FROM volunteers");
+    $sql = "SELECT * FROM volunteers";
+    $stmt = $pdo->prepare($sql);
     $stmt->execute();
     $volunteers = $stmt->fetchAll();
 
-    // Переводим навыки на русский
     foreach ($volunteers as &$vol) {
         $skill = $vol['skill'];
         switch ($skill) {
-            case 'feeding':
-                $vol['skill_rus'] = 'Кормление';
-                break;
-            case 'walking':
-                $vol['skill_rus'] = 'Выгул';
-                break;
-            case 'medical':
-                $vol['skill_rus'] = 'Медицина';
-                break;
-            case 'cleaning':
-                $vol['skill_rus'] = 'Уборка';
-                break;
-            case 'admin':
-                $vol['skill_rus'] = '📋 Администрирование';
-                break;
-            default:
-                $vol['skill_rus'] = $skill;
+            case 'feeding': $vol['skill_rus'] = 'Кормление'; break;
+            case 'walking': $vol['skill_rus'] = 'Выгул'; break;
+            case 'medical': $vol['skill_rus'] = 'Медицина'; break;
+            case 'cleaning': $vol['skill_rus'] = 'Уборка'; break;
+            case 'admin': $vol['skill_rus'] = 'Администрирование'; break;
+            default: $vol['skill_rus'] = $skill;
         }
     }
-
     return $volunteers;
 }
 
 function addVolunteer($pdo, $name, $phone, $skill, $photo_url)
 {
-    $stmt = $pdo->prepare("INSERT INTO volunteers (full_name, phone, skill, photo_url) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$name, $phone, $skill, $photo_url]);
+    $sql = "INSERT INTO volunteers (full_name, phone, skill, photo_url) VALUES (:full_name, :phone, :skill, :photo_url)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':full_name' => $name,
+        ':phone' => $phone,
+        ':skill' => $skill,
+        ':photo_url' => $photo_url
+    ]);
 }
 
 function checkVolunteerByPhone($pdo, $phone)
 {
-    $stmt = $pdo->prepare("SELECT * FROM volunteers WHERE phone = ?");
-    $stmt->execute([$phone]);
+    $sql = "SELECT * FROM volunteers WHERE phone = :phone";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':phone' => $phone]);
     return $stmt->fetch();
 }
 
-function addAdoption($pdo, $animal_id, $name, $phone)
+function addAdoption($pdo)
 {
-    $stmt = $pdo->prepare("INSERT INTO adoptions (animal_id, adopter_name, adopter_phone, adoption_date) VALUES (?, ?, ?, CURDATE())");
-    $stmt->execute([$animal_id, $name, $phone]);
+    $sql = "INSERT INTO adoptions (animal_id, adopter_name, adopter_phone, adoption_date) VALUES (:animal_id, :adopter_name, :adopter_phone, CURDATE())";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($_POST);
 }
 
 function checkAdoption($pdo, $animal_id)
 {
-    $stmt = $pdo->prepare("SELECT * FROM adoptions WHERE animal_id = ?");
-    $stmt->execute([$animal_id]);
+    $sql = "SELECT * FROM adoptions WHERE animal_id = :animal_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':animal_id' => $animal_id]);
     return $stmt->fetch();
 }
 
-// ========== ДЛЯ АДМИНА ==========
-
-// Добавление нового животного
 function addAnimal($pdo, $name, $species, $breed, $age, $status, $photo_url)
 {
-    $stmt = $pdo->prepare("INSERT INTO animals (name, species, breed, age, status, photo_url) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$name, $species, $breed, $age, $status, $photo_url]);
+    $sql = "INSERT INTO animals (name, species, breed, age, status, photo_url) VALUES (:name, :species, :breed, :age, :status, :photo_url)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':name' => $name,
+        ':species' => $species,
+        ':breed' => $breed,
+        ':age' => $age,
+        ':status' => $status,
+        ':photo_url' => $photo_url
+    ]);
     return $pdo->lastInsertId();
 }
+
 function deleteAnimal($pdo, $id)
 {
-    $stmt = $pdo->prepare("DELETE FROM animals WHERE id = ?");
-    $stmt->execute([$id]);
+    $sql = "DELETE FROM animals WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
 }
 
 function deleteVolunteer($pdo, $id)
 {
-    $stmt = $pdo->prepare("DELETE FROM volunteers WHERE id = ?");
-    $stmt->execute([$id]);
+    $sql = "DELETE FROM volunteers WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
 }
 
 function getAnimalById($pdo, $id)
 {
-    $stmt = $pdo->prepare("SELECT * FROM animals WHERE id = ?");
-    $stmt->execute([$id]);
+    $sql = "SELECT * FROM animals WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
     return $stmt->fetch();
 }
 
-function updateAnimal($pdo, $id, $name, $species, $breed, $age, $status, $photo_url)
+function updateAnimal($pdo, $id, $name, $species, $breed, $age, $status, $photo_url, $character_desc, $health_desc)
 {
-    $stmt = $pdo->prepare("UPDATE animals SET name=?, species=?, breed=?, age=?, status=?, photo_url=? WHERE id=?");
-    $stmt->execute([$name, $species, $breed, $age, $status, $photo_url, $id]);
+    $sql = "UPDATE animals SET name='$name', species='$species', breed='$breed', age='$age', status='$status', photo_url='$photo_url' WHERE id='$id'";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+
+    $sql2 = "UPDATE animal_details SET character_desc='$character_desc', health_desc='$health_desc' WHERE animal_id='$id'";
+    $stmt2 = $pdo->prepare($sql2);
+    $stmt2->execute();
 }
+
 function updateVolunteer($pdo, $id, $full_name, $phone, $skill, $photo_url)
 {
-    $stmt = $pdo->prepare("UPDATE volunteers SET full_name=?, phone=?, skill=?, photo_url=? WHERE id=?");
-    $stmt->execute([$full_name, $phone, $skill, $photo_url, $id]);
+    $sql = "UPDATE volunteers SET full_name = :full_name, phone = :phone, skill = :skill, photo_url = :photo_url WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':full_name' => $full_name,
+        ':phone' => $phone,
+        ':skill' => $skill,
+        ':photo_url' => $photo_url,
+        ':id' => $id
+    ]);
 }
 
 function getVolunteerById($pdo, $id)
 {
-    $stmt = $pdo->prepare("SELECT * FROM volunteers WHERE id = ?");
-    $stmt->execute([$id]);
-    return $stmt->fetch();
-}
-// Получить лечение животного
-function getTreatment($pdo, $animal_id)
-{
-    $stmt = $pdo->prepare("SELECT treatment_text FROM animal_details WHERE animal_id = ?");
-    $stmt->execute([$animal_id]);
+    $sql = "SELECT * FROM volunteers WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
     return $stmt->fetch();
 }
 
-// Обновить лечение животного
+function getTreatment($pdo, $animal_id)
+{
+    $sql = "SELECT treatment_text FROM animal_details WHERE animal_id = :animal_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':animal_id' => $animal_id]);
+    return $stmt->fetch();
+}
+
 function updateTreatment($pdo, $animal_id, $treatment_text)
 {
-    $stmt = $pdo->prepare("SELECT * FROM animal_details WHERE animal_id = ?");
-    $stmt->execute([$animal_id]);
+    $stmt = $pdo->prepare("SELECT * FROM animal_details WHERE animal_id = :animal_id");
+    $stmt->execute([':animal_id' => $animal_id]);
     $exists = $stmt->fetch();
 
     if ($exists) {
-        $stmt = $pdo->prepare("UPDATE animal_details SET treatment_text = ? WHERE animal_id = ?");
-        $stmt->execute([$treatment_text, $animal_id]);
+        $sql = "UPDATE animal_details SET treatment_text = :treatment_text WHERE animal_id = :animal_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':treatment_text' => $treatment_text, ':animal_id' => $animal_id]);
     } else {
-        $stmt = $pdo->prepare("INSERT INTO animal_details (animal_id, treatment_text) VALUES (?, ?)");
-        $stmt->execute([$animal_id, $treatment_text]);
+        $sql = "INSERT INTO animal_details (animal_id, treatment_text) VALUES (:animal_id, :treatment_text)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':animal_id' => $animal_id, ':treatment_text' => $treatment_text]);
     }
 }
 ?>
