@@ -96,7 +96,14 @@ $volunteers = selectVolunteers($pdo);
                     <div class="card-body">
                         <h3 style="margin: 0 0 5px 0;"><?= htmlspecialchars($vol['full_name']) ?></h3>
                         <p style="color: #666; margin-bottom: 10px;">📞 <?= $vol['phone'] ?></p>
-                        <span class="need-badge"><?= $vol['skill_rus'] ?></span>
+                            <?php
+                            $skill_rus = '';
+                            if ($vol['skill'] == 'feeding') $skill_rus = 'Кормление';
+                            if ($vol['skill'] == 'walking') $skill_rus = 'Выгул';
+                            if ($vol['skill'] == 'medical') $skill_rus = 'Медицина';
+                            if ($vol['skill'] == 'cleaning') $skill_rus = 'Уборка';
+                            ?>
+                            <span class="need-badge"><?= $skill_rus ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>

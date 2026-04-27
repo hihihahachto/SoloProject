@@ -22,20 +22,7 @@ function selectVolunteers($pdo)
     $sql = "SELECT * FROM volunteers";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-    $volunteers = $stmt->fetchAll();
-
-    foreach ($volunteers as &$vol) {
-        $skill = $vol['skill'];
-        switch ($skill) {
-            case 'feeding': $vol['skill_rus'] = 'Кормление'; break;
-            case 'walking': $vol['skill_rus'] = 'Выгул'; break;
-            case 'medical': $vol['skill_rus'] = 'Медицина'; break;
-            case 'cleaning': $vol['skill_rus'] = 'Уборка'; break;
-            case 'admin': $vol['skill_rus'] = 'Администрирование'; break;
-            default: $vol['skill_rus'] = $skill;
-        }
-    }
-    return $volunteers;
+    return $stmt->fetchAll();
 }
 
 function addVolunteer($pdo, $name, $phone, $skill, $photo_url)

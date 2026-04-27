@@ -30,7 +30,7 @@ if (isset($_POST['edit'])) {
 }
 
 $volunteers = selectVolunteers($pdo);
-$edit = isset($_GET['edit']) ? getVolunteerById($pdo, $_GET['edit']) : null;
+$edit = getVolunteerById($pdo, $_GET['edit']);
 ?>
 
 <!doctype html>

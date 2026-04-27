@@ -45,10 +45,9 @@ if (isset($_POST['update_treatment'])) {
 }
 
 $animals = selectAnimals($pdo);
-$edit = isset($_GET['edit']) ? getAnimalById($pdo, $_GET['edit']) : null;
-$edit_details = $edit ? detailsAnimal($pdo, $edit['id']) : null;
-$treatment_animal_id = isset($_GET['treatment']) ? (int)$_GET['treatment'] : 0;
-$treatment = $treatment_animal_id > 0 ? getTreatment($pdo, $treatment_animal_id) : null;
+$edit = getAnimalById($pdo, $_GET['edit']);
+$edit_details = detailsAnimal($pdo, $edit['id']);
+$treatment = getTreatment($pdo, $_GET['treatment']);
 ?>
 
 <!doctype html>
