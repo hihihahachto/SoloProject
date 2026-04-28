@@ -7,9 +7,14 @@ if (!isset($_SESSION['admin'])) {
 
 require_once '../model/models.php';
 
-// Удаление
 if (isset($_GET['delete'])) {
     deleteVolunteer($pdo, $_GET['delete']);
+    header('Location: volunteers_edit.php');
+    exit;
+}
+
+if ($_POST && isset($_POST['edit'])) {
+    updateVolunteer($pdo, $_POST['id'], $_POST['full_name'], $_POST['phone'], $_POST['skill'], $_POST['photo_url']);
     header('Location: volunteers_edit.php');
     exit;
 }
@@ -22,15 +27,12 @@ if (isset($_POST['add'])) {
     exit;
 }
 
-// Редактирование
-if (isset($_POST['edit'])) {
-    updateVolunteer($pdo, $_POST['id'], $_POST['full_name'], $_POST['phone'], $_POST['skill'], $_POST['photo_url']);
-    header('Location: volunteers_edit.php');
-    exit;
-}
-
 $volunteers = selectVolunteers($pdo);
-$edit = getVolunteerById($pdo, $_GET['edit']);
+
+$edit = null;
+if (isset($_GET['edit'])) {
+    $edit = getVolunteerById($pdo, $_GET['edit']);
+}
 ?>
 
 <!doctype html>
@@ -45,7 +47,7 @@ $edit = getVolunteerById($pdo, $_GET['edit']);
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #1a5a1e; color: white; }
         tr:hover { background: #f5f5f5; }
-        input, select { padding: 8px; border-radius: 8px; border: 1px solid #ccc; }
+        input, select { padding: 8px; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
         .btn { background: #2e7d32; color: white; padding: 5px 12px; border-radius: 20px; text-decoration: none; display: inline-block; margin: 2px; border: none; cursor: pointer; }
         .btn-gray { background: #6c757d; }
         .form-group { margin-bottom: 15px; }
@@ -62,10 +64,7 @@ $edit = getVolunteerById($pdo, $_GET['edit']);
     <div class="form-section">
         <h3>➕ Добавить волонтёра</h3>
         <form method="POST">
-            <div class="form-group">
-                <label>ФИО:</label><br>
-                <input type="text" name="full_name" required>
-            </div>
+            <div class="form-group"><label>ФИО:</label><br><input type="text" name="full_name" required></div>
             <div class="form-group"><label>Телефон:</label><br><input type="text" name="phone" required></div>
             <div class="form-group">
                 <label>Навык:</label><br>
@@ -74,7 +73,6 @@ $edit = getVolunteerById($pdo, $_GET['edit']);
                     <option value="walking">Выгул</option>
                     <option value="medical">Медицина</option>
                     <option value="cleaning">Уборка</option>
-                    <option value="admin">Администрирование</option>
                 </select>
             </div>
             <div class="form-group"><label>Фото (ссылка):</label><br><input type="text" name="photo_url"></div>
@@ -88,10 +86,7 @@ $edit = getVolunteerById($pdo, $_GET['edit']);
             <h3>✏️ Редактировать волонтёра</h3>
             <form method="POST">
                 <input type="hidden" name="id" value="<?= $edit['id'] ?>">
-                <div class="form-group">
-                    <label>ФИО:</label><br>
-                    <input type="text" name="full_name" value="<?= htmlspecialchars($edit['full_name']) ?>" required>
-                </div>
+                <div class="form-group"><label>ФИО:</label><br><input type="text" name="full_name" value="<?= htmlspecialchars($edit['full_name']) ?>" required></div>
                 <div class="form-group"><label>Телефон:</label><br><input type="text" name="phone" value="<?= htmlspecialchars($edit['phone']) ?>" required></div>
                 <div class="form-group">
                     <label>Навык:</label><br>
@@ -100,7 +95,6 @@ $edit = getVolunteerById($pdo, $_GET['edit']);
                         <option value="walking" <?= $edit['skill'] == 'walking' ? 'selected' : '' ?>>Выгул</option>
                         <option value="medical" <?= $edit['skill'] == 'medical' ? 'selected' : '' ?>>Медицина</option>
                         <option value="cleaning" <?= $edit['skill'] == 'cleaning' ? 'selected' : '' ?>>Уборка</option>
-                        <option value="admin" <?= $edit['skill'] == 'admin' ? 'selected' : '' ?>>Администрирование</option>
                     </select>
                 </div>
                 <div class="form-group"><label>Фото (ссылка):</label><br><input type="text" name="photo_url" value="<?= htmlspecialchars($edit['photo_url']) ?>"></div>
@@ -131,14 +125,12 @@ $edit = getVolunteerById($pdo, $_GET['edit']);
                     <td><?= $vol['phone'] ?></td>
                     <td>
                         <?php
-                        $skill_ru = [
-                                'feeding' => 'Кормление',
-                                'walking' => 'Выгул',
-                                'medical' => 'Медицина',
-                                'cleaning' => 'Уборка',
-                                'admin' => 'Администрирование'
-                        ][$vol['skill']] ?? $vol['skill'];
-                        echo $skill_ru;
+                        $skill_rus = '';
+                        if ($vol['skill'] == 'feeding') $skill_rus = 'Кормление';
+                        if ($vol['skill'] == 'walking') $skill_rus = 'Выгул';
+                        if ($vol['skill'] == 'medical') $skill_rus = 'Медицина';
+                        if ($vol['skill'] == 'cleaning') $skill_rus = 'Уборка';
+                        echo $skill_rus;
                         ?>
                     </td>
                     <td>

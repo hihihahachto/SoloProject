@@ -7,33 +7,24 @@ if (!isset($_SESSION['admin'])) {
 
 require_once '../model/models.php';
 
-// Удаление
 if (isset($_GET['delete'])) {
     deleteAnimal($pdo, $_GET['delete']);
     header('Location: animals_edit.php');
     exit;
 }
 
-// Редактирование основной информации
 if (isset($_POST['edit'])) {
-    updateAnimal($pdo, $_POST['id'], $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url'], $_POST['character_desc'], $_POST['health_desc']);
+    updateAnimal($pdo, $_POST['id'], $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
     header('Location: animals_edit.php');
     exit;
 }
 
-// Добавление
 if (isset($_POST['add'])) {
-    $animal_id = addAnimal($pdo, $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
-
-    $sql = "INSERT INTO animal_details (animal_id, character_desc, health_desc) VALUES ('$animal_id', '{$_POST['character_desc']}', '{$_POST['health_desc']}')";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute();
-
+    addAnimal($pdo, $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
     header('Location: animals_edit.php');
     exit;
 }
 
-// Обновление лечения
 if (isset($_POST['update_treatment'])) {
     $animal_id = $_POST['animal_id'] ?? 0;
     $treatment_text = $_POST['treatment_text'] ?? '';
@@ -45,9 +36,6 @@ if (isset($_POST['update_treatment'])) {
 }
 
 $animals = selectAnimals($pdo);
-$edit = getAnimalById($pdo, $_GET['edit']);
-$edit_details = detailsAnimal($pdo, $edit['id']);
-$treatment = getTreatment($pdo, $_GET['treatment']);
 ?>
 
 <!doctype html>
@@ -78,11 +66,13 @@ $treatment = getTreatment($pdo, $_GET['treatment']);
     <a href="admin_panel.php" class="btn btn-gray">← Назад в панель</a>
 
     <!-- ФОРМА РЕДАКТИРОВАНИЯ ЛЕЧЕНИЯ -->
-    <?php if ($treatment_animal_id > 0): ?>
+    <?php if (isset($_GET['treatment'])):
+        $treatment = getTreatment($pdo, $_GET['treatment']);
+        ?>
         <div class="form-section">
             <h3>💊 Редактировать лечение</h3>
             <form method="POST">
-                <input type="hidden" name="animal_id" value="<?= $treatment_animal_id ?>">
+                <input type="hidden" name="animal_id" value="<?= $_GET['treatment'] ?>">
                 <div class="form-group">
                     <label>Информация о лечении:</label>
                     <textarea name="treatment_text" rows="10" style="width:100%;"><?= htmlspecialchars($treatment['treatment_text'] ?? '') ?></textarea>
@@ -121,7 +111,7 @@ $treatment = getTreatment($pdo, $_GET['treatment']);
                 <label>Статус:</label>
                 <select name="status">
                     <option value="waiting">Ждёт хозяина</option>
-                    <option value="adopted">Усыновлён</option>
+                    <option value="adopted">Усыновлен</option>
                     <option value="treatment">На лечении</option>
                 </select>
             </div>
@@ -129,20 +119,15 @@ $treatment = getTreatment($pdo, $_GET['treatment']);
                 <label>Фото (ссылка):</label>
                 <input type="text" name="photo_url" placeholder="https://...">
             </div>
-            <div class="form-group">
-                <label>Характер:</label>
-                <textarea name="character_desc" rows="3" style="width:100%;"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Здоровье:</label>
-                <textarea name="health_desc" rows="3" style="width:100%;"></textarea>
-            </div>
             <button type="submit" name="add" class="btn">➕ Добавить животное</button>
         </form>
     </div>
 
     <!-- ФОРМА РЕДАКТИРОВАНИЯ -->
-    <?php if ($edit): ?>
+    <?php if (isset($_GET['edit'])):
+        $edit = getAnimalById($pdo, $_GET['edit']);
+        $edit_details = detailsAnimal($pdo, $edit['id']);
+        ?>
         <div class="form-section">
             <h3>✏️ Редактировать животное</h3>
             <form method="POST">
@@ -171,7 +156,7 @@ $treatment = getTreatment($pdo, $_GET['treatment']);
                     <label>Статус:</label>
                     <select name="status">
                         <option value="waiting" <?= $edit['status'] == 'waiting' ? 'selected' : '' ?>>Ждёт хозяина</option>
-                        <option value="adopted" <?= $edit['status'] == 'adopted' ? 'selected' : '' ?>>Усыновлён</option>
+                        <option value="adopted" <?= $edit['status'] == 'adopted' ? 'selected' : '' ?>>Усыновлен</option>
                         <option value="treatment" <?= $edit['status'] == 'treatment' ? 'selected' : '' ?>>На лечении</option>
                     </select>
                 </div>
@@ -208,16 +193,7 @@ $treatment = getTreatment($pdo, $_GET['treatment']);
                     <td><?= $animal['species'] ?></td>
                     <td><?= $animal['breed'] ?></td>
                     <td><?= $animal['age'] ?></td>
-                    <td>
-                        <?php
-                        $status_ru = [
-                            'waiting' => 'Ждёт хозяина',
-                            'adopted' => 'Усыновлён',
-                            'treatment' => 'На лечении'
-                        ][$animal['status']] ?? $animal['status'];
-                        echo $status_ru;
-                        ?>
-                    </td>
+                    <td><?= $animal['status'] ?></td>
                     <td>
                         <a href="animals_edit.php?edit=<?= $animal['id'] ?>" class="btn btn-gray btn-small">Изменить</a>
                         <a href="animals_edit.php?treatment=<?= $animal['id'] ?>" class="btn btn-gray btn-small">Лечение</a>
