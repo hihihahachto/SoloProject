@@ -26,7 +26,7 @@
 
 <div class="cards">
     <div class="card">
-        <img src="https://www.myplanet-ua.com/wp-content/uploads/2016/02/20141108121240.jpg" alt="Собака">
+        <img src="https://avatars.mds.yandex.net/i?id=de1f7889c513309c1ddc4304bbe2f664_l-4902831-images-thumbs&n=13.jpg" alt="Собака">
         <h3>Наши животные</h3>
         <p>Посмотрите на наших красавчиков. Они ждут своего человека.</p>
         <a href="animals.php" class="btn">Смотреть всех →</a>

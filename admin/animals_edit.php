@@ -5,7 +5,8 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
-require_once '../model/models.php';
+require_once '../model/Database.php';
+require_once '../controller/AnimalController.php';
 
 if (isset($_GET['delete'])) {
     deleteAnimal($pdo, $_GET['delete']);
@@ -15,6 +16,7 @@ if (isset($_GET['delete'])) {
 
 if (isset($_POST['edit'])) {
     updateAnimal($pdo, $_POST['id'], $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
+    updateAnimalDetails($pdo, $_POST['id'], $_POST['character_desc'], $_POST['health_desc']);
     header('Location: animals_edit.php');
     exit;
 }
@@ -26,16 +28,39 @@ if (isset($_POST['add'])) {
 }
 
 if (isset($_POST['update_treatment'])) {
-    $animal_id = $_POST['animal_id'] ?? 0;
-    $treatment_text = $_POST['treatment_text'] ?? '';
-    if ($animal_id > 0) {
-        updateTreatment($pdo, $animal_id, $treatment_text);
+    $animal_id = $_POST['animal_id'];
+    $treatment_text = $_POST['treatment_text'];
+
+    $sql = "SELECT * FROM animal_details WHERE animal_id = :animal_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':animal_id' => $animal_id]);
+    $exists = $stmt->fetch();
+
+    if ($exists) {
+        $sql = "UPDATE animal_details SET treatment_text = :treatment_text WHERE animal_id = :animal_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':treatment_text' => $treatment_text, ':animal_id' => $animal_id]);
+    } else {
+        $sql = "INSERT INTO animal_details (animal_id, treatment_text) VALUES (:animal_id, :treatment_text)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':animal_id' => $animal_id, ':treatment_text' => $treatment_text]);
     }
     header('Location: animals_edit.php');
     exit;
 }
 
-$animals = selectAnimals($pdo);
+$animals = getAllAnimals($pdo);
+
+$edit = null;
+if (isset($_GET['edit'])) {
+    $edit = getAnimalById($pdo, $_GET['edit']);
+    $edit_details = getAnimalDetails($pdo, $edit['id']);
+}
+
+$treatment = null;
+if (isset($_GET['treatment'])) {
+    $treatment = getAnimalDetails($pdo, $_GET['treatment']);
+}
 ?>
 
 <!doctype html>
@@ -65,10 +90,7 @@ $animals = selectAnimals($pdo);
     <h1 style="color: #5a8a5a;">🐾 Управление животными</h1>
     <a href="admin_panel.php" class="btn btn-gray">← Назад в панель</a>
 
-    <!-- ФОРМА РЕДАКТИРОВАНИЯ ЛЕЧЕНИЯ -->
-    <?php if (isset($_GET['treatment'])):
-        $treatment = getTreatment($pdo, $_GET['treatment']);
-        ?>
+    <?php if (isset($_GET['treatment'])): ?>
         <div class="form-section">
             <h3>💊 Редактировать лечение</h3>
             <form method="POST">
@@ -83,51 +105,37 @@ $animals = selectAnimals($pdo);
         </div>
     <?php endif; ?>
 
-    <!-- ФОРМА ДОБАВЛЕНИЯ -->
-    <div class="form-section">
-        <h3>➕ Добавить новое животное</h3>
-        <form method="POST">
-            <div class="form-group">
-                <label>Кличка:</label>
-                <input type="text" name="name" required>
-            </div>
-            <div class="form-group">
-                <label>Вид:</label>
-                <select name="species">
-                    <option value="кот">Кот</option>
-                    <option value="кошка">Кошка</option>
-                    <option value="собака">Собака</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Порода:</label>
-                <input type="text" name="breed">
-            </div>
-            <div class="form-group">
-                <label>Возраст (мес):</label>
-                <input type="number" name="age">
-            </div>
-            <div class="form-group">
-                <label>Статус:</label>
-                <select name="status">
-                    <option value="waiting">Ждёт хозяина</option>
-                    <option value="adopted">Усыновлен</option>
-                    <option value="treatment">На лечении</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Фото (ссылка):</label>
-                <input type="text" name="photo_url" placeholder="https://...">
-            </div>
-            <button type="submit" name="add" class="btn">➕ Добавить животное</button>
-        </form>
-    </div>
+    <!-- добавление -->
+    <?php if (!$edit && !isset($_GET['treatment'])): ?>
+        <div class="form-section">
+            <h3>➕ Добавить новое животное</h3>
+            <form method="POST">
+                <div class="form-group"><label>Кличка:</label><input type="text" name="name" required></div>
+                <div class="form-group">
+                    <label>Вид:</label>
+                    <select name="species">
+                        <option value="кот">Кот</option>
+                        <option value="кошка">Кошка</option>
+                        <option value="собака">Собака</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Порода:</label><input type="text" name="breed"></div>
+                <div class="form-group"><label>Возраст (мес):</label><input type="number" name="age"></div>
+                <div class="form-group">
+                    <label>Статус:</label>
+                    <select name="status">
+                        <option value="waiting">Ждёт хозяина</option>
+                        <option value="adopted">Усыновлен</option>
+                        <option value="treatment">На лечении</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Фото (ссылка):</label><input type="text" name="photo_url" placeholder="https://..."></div>
+                <button type="submit" name="add" class="btn">➕ Добавить животное</button>
+            </form>
+        </div>
+    <?php endif; ?>
 
-    <!-- ФОРМА РЕДАКТИРОВАНИЯ -->
-    <?php if (isset($_GET['edit'])):
-        $edit = getAnimalById($pdo, $_GET['edit']);
-        $edit_details = detailsAnimal($pdo, $edit['id']);
-        ?>
+    <?php if ($edit): ?>
         <div class="form-section">
             <h3>✏️ Редактировать животное</h3>
             <form method="POST">
@@ -161,13 +169,12 @@ $animals = selectAnimals($pdo);
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Фото (ссылка):</label>
-                    <input type="text" name="photo_url" value="<?= htmlspecialchars($edit['photo_url']) ?>">
+                    <label>Фото (ссылка):</label><input type="text" name="photo_url" value="<?= htmlspecialchars($edit['photo_url']) ?>">
                 </div>
                 <div class="form-group">
                     <label>Характер:</label>
-                    <textarea name="character_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['character_desc'] ?? '') ?></textarea>
-                </div>
+                    <textarea name="character_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['character_desc'] ?? '') ?>
+                    </textarea></div>
                 <div class="form-group">
                     <label>Здоровье:</label>
                     <textarea name="health_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['health_desc'] ?? '') ?></textarea>
@@ -178,12 +185,19 @@ $animals = selectAnimals($pdo);
         </div>
     <?php endif; ?>
 
-    <!-- СПИСОК ЖИВОТНЫХ -->
     <h2>📋 Список животных</h2>
     <div style="overflow-x: auto;">
         <table style="width: 100%;">
             <thead>
-            <tr><th>ID</th><th>Кличка</th><th>Вид</th><th>Порода</th><th>Возраст</th><th>Статус</th><th>Действия</th></tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Кличка</th>
+                    <th>Вид</th>
+                    <th>Порода</th>
+                    <th>Возраст</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
             </thead>
             <tbody>
             <?php foreach ($animals as $animal): ?>

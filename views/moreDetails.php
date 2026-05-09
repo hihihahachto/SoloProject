@@ -1,10 +1,10 @@
 <?php
-require_once '../model/models.php';
+require_once '../model/Database.php';
+require_once '../controller/AnimalController.php';
+
 $id = $_GET['id'];
-$stmt = $pdo->prepare("SELECT * FROM animals WHERE id = $id");
-$stmt->execute();
-$animal = $stmt->fetch();
-$details = detailsAnimal($pdo, $id);
+$animal = getAnimalById($pdo, $id);
+$details = getAnimalDetails($pdo, $id);
 ?>
 <!doctype html>
 <html lang="ru">
@@ -16,22 +16,33 @@ $details = detailsAnimal($pdo, $id);
 <body>
 <div class="header"><h1><?= $animal['name'] ?></h1></div>
 <div style="max-width:1000px; margin:40px auto; background:white; border-radius:20px; display:flex; flex-wrap:wrap;">
-    <div style="flex:1; min-width:300px;"><img src="<?= $animal['photo_url'] ?>" style="width:100%; height:100%; object-fit:cover;"></div>
+    <div style="flex:1; min-width:300px;">
+        <img src="<?= $animal['photo_url'] ?>" style="width:100%; height:100%; object-fit:cover;">
+    </div>
     <div style="flex:1; padding:30px;">
         <p><strong>Вид:</strong> <?= $animal['species'] ?></p>
         <p><strong>Порода:</strong> <?= $animal['breed'] ?></p>
         <p><strong>Возраст:</strong> <?= $animal['age'] ?> мес.</p>
         <p><strong>Статус:</strong> <?= $animal['status'] ?></p>
 
-        <p><strong>Характер:</strong> <?= $details && $details['character_desc'] ? $details['character_desc'] : 'Не указан' ?></p>
-        <p><strong>Здоровье:</strong> <?= $details && $details['health_desc'] ? $details['health_desc'] : 'Не указано' ?></p>
+        <?php if ($details): ?>
+            <p><strong>Характер:</strong> <?= $details['character_desc'] ?></p>
+            <p><strong>Здоровье:</strong> <?= $details['health_desc'] ?></p>
+            <div style="background:#e8f5e9; padding:20px; border-radius:15px;">
+                <h3>📖 История</h3>
+                <p><?= nl2br($details['text']) ?></p>
+            </div>
+        <?php else: ?>
+            <p><strong>Характер:</strong> Не указан</p>
+            <p><strong>Здоровье:</strong> Не указано</p>
+            <div style="background:#e8f5e9; padding:20px; border-radius:15px;">
+                <h3>📖 История</h3>
+                <p>История пока не добавлена</p>
+            </div>
+        <?php endif; ?>
 
-        <div style="background:#e8f5e9; padding:20px; border-radius:15px; margin-top:20px;">
-            <h3>📖 История</h3>
-            <p><?= $details && $details['text'] ? nl2br($details['text']) : 'История пока не добавлена' ?></p>
-        </div>
         <div style="margin-top:30px;">
-            <a href="animals.php" class="btn" style="background:#6c757d;">Назад</a>
+            <a href="animals.php" class="btn">Назад</a>
             <a href="adopt_form.php?id=<?= $animal['id'] ?>" class="btn">Усыновить</a>
         </div>
     </div>

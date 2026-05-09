@@ -1,6 +1,8 @@
 <?php
-require_once '../model/models.php';
-$volunteers = selectVolunteers($pdo);
+require_once '../model/Database.php';
+require_once '../controller/VolunteerController.php';
+
+$volunteers = getAllVolunteers($pdo);
 ?>
 <!doctype html>
 <html lang="ru">

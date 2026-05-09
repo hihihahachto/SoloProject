@@ -1,11 +1,13 @@
 <?php
+
 session_start();
 if (!isset($_SESSION['admin'])) {
     header('Location: admin_login.php');
     exit;
 }
 
-require_once '../model/models.php';
+require_once '../model/Database.php';
+require_once '../controller/VolunteerController.php';
 
 if (isset($_GET['delete'])) {
     deleteVolunteer($pdo, $_GET['delete']);
@@ -13,21 +15,19 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
-if ($_POST && isset($_POST['edit'])) {
+if (isset($_POST['edit'])) {
     updateVolunteer($pdo, $_POST['id'], $_POST['full_name'], $_POST['phone'], $_POST['skill'], $_POST['photo_url']);
     header('Location: volunteers_edit.php');
     exit;
 }
 
-// Добавление
 if (isset($_POST['add'])) {
-    $photo_url = $_POST['photo_url'] ?? '';
-    addVolunteer($pdo, $_POST['full_name'], $_POST['phone'], $_POST['skill'], $photo_url);
+    addVolunteer($pdo, $_POST['full_name'], $_POST['phone'], $_POST['skill'], $_POST['photo_url']);
     header('Location: volunteers_edit.php');
     exit;
 }
 
-$volunteers = selectVolunteers($pdo);
+$volunteers = getAllVolunteers($pdo);
 
 $edit = null;
 if (isset($_GET['edit'])) {
@@ -47,7 +47,7 @@ if (isset($_GET['edit'])) {
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #1a5a1e; color: white; }
         tr:hover { background: #f5f5f5; }
-        input, select { padding: 8px; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
+        input, select { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
         .btn { background: #2e7d32; color: white; padding: 5px 12px; border-radius: 20px; text-decoration: none; display: inline-block; margin: 2px; border: none; cursor: pointer; }
         .btn-gray { background: #6c757d; }
         .form-group { margin-bottom: 15px; }
@@ -60,27 +60,27 @@ if (isset($_GET['edit'])) {
     <h1 style="color: #1a5a1e;">🙋 Волонтёры</h1>
     <a href="admin_panel.php" class="btn btn-gray">← Назад</a>
 
-    <!-- ФОРМА ДОБАВЛЕНИЯ -->
-    <div class="form-section">
-        <h3>➕ Добавить волонтёра</h3>
-        <form method="POST">
-            <div class="form-group"><label>ФИО:</label><br><input type="text" name="full_name" required></div>
-            <div class="form-group"><label>Телефон:</label><br><input type="text" name="phone" required></div>
-            <div class="form-group">
-                <label>Навык:</label><br>
-                <select name="skill">
-                    <option value="feeding">Кормление</option>
-                    <option value="walking">Выгул</option>
-                    <option value="medical">Медицина</option>
-                    <option value="cleaning">Уборка</option>
-                </select>
-            </div>
-            <div class="form-group"><label>Фото (ссылка):</label><br><input type="text" name="photo_url"></div>
-            <button type="submit" name="add" class="btn">➕ Добавить</button>
-        </form>
-    </div>
+    <?php if (!$edit): ?>
+        <div class="form-section">
+            <h3>➕ Добавить волонтёра</h3>
+            <form method="POST">
+                <div class="form-group"><label>ФИО:</label><br><input type="text" name="full_name" required></div>
+                <div class="form-group"><label>Телефон:</label><br><input type="text" name="phone" required></div>
+                <div class="form-group">
+                    <label>Навык:</label><br>
+                    <select name="skill">
+                        <option value="feeding">Кормление</option>
+                        <option value="walking">Выгул</option>
+                        <option value="medical">Медицина</option>
+                        <option value="cleaning">Уборка</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Фото (ссылка):</label><br><input type="text" name="photo_url"></div>
+                <button type="submit" name="add" class="btn">➕ Добавить</button>
+            </form>
+        </div>
+    <?php endif; ?>
 
-    <!-- ФОРМА РЕДАКТИРОВАНИЯ -->
     <?php if ($edit): ?>
         <div class="form-section">
             <h3>✏️ Редактировать волонтёра</h3>
@@ -104,7 +104,6 @@ if (isset($_GET['edit'])) {
         </div>
     <?php endif; ?>
 
-    <!-- СПИСОК ВОЛОНТЁРОВ -->
     <h2>📋 Список волонтёров</h2>
     <div style="overflow-x: auto;">
         <table style="width: 100%;">
