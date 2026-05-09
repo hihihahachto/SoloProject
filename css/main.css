@@ -1,4 +1,3 @@
-/* ЗЕЛЁНЫЙ ДИЗАЙН ДЛЯ ПРИЮТА */
 * {
     margin: 0;
     padding: 0;
@@ -10,7 +9,6 @@ body {
     background: #f0f7f0;
 }
 
-/* ШАПКА */
 .header {
     background: #1a5a1e;
     color: white;
@@ -27,7 +25,6 @@ body {
     color: #a5d6a7;
 }
 
-/* ОПИСАНИЕ */
 .description {
     background: white;
     max-width: 1000px;
@@ -38,7 +35,6 @@ body {
     line-height: 1.6;
 }
 
-/* КАРТОЧКИ */
 .cards {
     display: flex;
     justify-content: center;
@@ -83,7 +79,6 @@ body {
     background: #1b5e20;
 }
 
-/* ФУТЕР */
 .footer {
     background: #1a5a1e;
     color: white;
