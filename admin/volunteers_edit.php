@@ -1,29 +1,34 @@
 <?php
+// Сначала подключаем БД
+require_once '../model/database.php';
 
-session_start();
-if (!isset($_SESSION['admin'])) {
-    header('Location: admin_login.php');
-    exit;
+// Проверяем токен
+$token = $_GET['token'] ?? '';
+$sql = "SELECT * FROM admins WHERE token = :token";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':token' => $token]);
+$admin = $stmt->fetch();
+if (!$admin) {
+    die('Доступ запрещён. Авторизуйтесь заново.');
 }
 
-require_once '../model/Database.php';
 require_once '../controller/VolunteerController.php';
 
 if (isset($_GET['delete'])) {
     deleteVolunteer($pdo, $_GET['delete']);
-    header('Location: volunteers_edit.php');
+    header('Location: volunteers_edit.php?token=' . urlencode($token));
     exit;
 }
 
 if (isset($_POST['edit'])) {
     updateVolunteer($pdo, $_POST['id'], $_POST['full_name'], $_POST['phone'], $_POST['skill'], $_POST['photo_url']);
-    header('Location: volunteers_edit.php');
+    header('Location: volunteers_edit.php?token=' . urlencode($token));
     exit;
 }
 
 if (isset($_POST['add'])) {
     addVolunteer($pdo, $_POST['full_name'], $_POST['phone'], $_POST['skill'], $_POST['photo_url']);
-    header('Location: volunteers_edit.php');
+    header('Location: volunteers_edit.php?token=' . urlencode($token));
     exit;
 }
 
@@ -58,7 +63,7 @@ if (isset($_GET['edit'])) {
 
 <div class="container">
     <h1 style="color: #1a5a1e;">🙋 Волонтёры</h1>
-    <a href="admin_panel.php" class="btn btn-gray">← Назад</a>
+    <a href="admin_panel.php?token=<?= urlencode($token) ?>">← Назад в панель</a>
 
     <?php if (!$edit): ?>
         <div class="form-section">
@@ -99,7 +104,7 @@ if (isset($_GET['edit'])) {
                 </div>
                 <div class="form-group"><label>Фото (ссылка):</label><br><input type="text" name="photo_url" value="<?= htmlspecialchars($edit['photo_url']) ?>"></div>
                 <button type="submit" name="edit" class="btn">💾 Сохранить</button>
-                <a href="volunteers_edit.php" class="btn btn-gray">Отмена</a>
+                <a href="volunteers_edit.php?token=<?= urlencode($token) ?>" class="btn btn-gray">Отмена</a>
             </form>
         </div>
     <?php endif; ?>
@@ -133,8 +138,8 @@ if (isset($_GET['edit'])) {
                         ?>
                     </td>
                     <td>
-                        <a href="volunteers_edit.php?edit=<?= $vol['id'] ?>" class="btn btn-gray">Изменить</a>
-                        <a href="volunteers_edit.php?delete=<?= $vol['id'] ?>" class="btn btn-gray" onclick="return confirm('Удалить?')">Удалить</a>
+                        <a href="volunteers_edit.php?edit=<?= $vol['id'] ?>&token=<?= urlencode($token) ?>" class="btn btn-gray">Изменить</a>
+                        <a href="volunteers_edit.php?delete=<?= $vol['id'] ?>&token=<?= urlencode($token) ?>" class="btn btn-gray" onclick="return confirm('Удалить?')">Удалить</a>
                     </td>
                 </tr>
             <?php endforeach; ?>

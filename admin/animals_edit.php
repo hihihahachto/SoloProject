@@ -1,29 +1,35 @@
 <?php
-session_start();
-if (!isset($_SESSION['admin'])) {
-    header('Location: admin_login.php');
-    exit;
+// Сначала подключаем БД
+require_once '../model/database.php';
+
+// Проверяем токен
+$token = $_GET['token'] ?? '';
+$sql = "SELECT * FROM admins WHERE token = :token";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':token' => $token]);
+$admin = $stmt->fetch();
+if (!$admin) {
+    die('Доступ запрещён. Авторизуйтесь заново.');
 }
 
-require_once '../model/Database.php';
 require_once '../controller/AnimalController.php';
 
 if (isset($_GET['delete'])) {
     deleteAnimal($pdo, $_GET['delete']);
-    header('Location: animals_edit.php');
+    header('Location: animals_edit.php?token=' . urlencode($token));
     exit;
 }
 
 if (isset($_POST['edit'])) {
     updateAnimal($pdo, $_POST['id'], $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
     updateAnimalDetails($pdo, $_POST['id'], $_POST['character_desc'], $_POST['health_desc']);
-    header('Location: animals_edit.php');
+    header('Location: animals_edit.php?token=' . urlencode($token));
     exit;
 }
 
 if (isset($_POST['add'])) {
     addAnimal($pdo, $_POST['name'], $_POST['species'], $_POST['breed'], $_POST['age'], $_POST['status'], $_POST['photo_url']);
-    header('Location: animals_edit.php');
+    header('Location: animals_edit.php?token=' . urlencode($token));
     exit;
 }
 
@@ -45,7 +51,7 @@ if (isset($_POST['update_treatment'])) {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':animal_id' => $animal_id, ':treatment_text' => $treatment_text]);
     }
-    header('Location: animals_edit.php');
+    header('Location: animals_edit.php?token=' . urlencode($token));
     exit;
 }
 
@@ -88,7 +94,7 @@ if (isset($_GET['treatment'])) {
 
 <div class="container">
     <h1 style="color: #5a8a5a;">🐾 Управление животными</h1>
-    <a href="admin_panel.php" class="btn btn-gray">← Назад в панель</a>
+    <a href="admin_panel.php?token=<?= urlencode($token) ?>">← Назад в панель</a>
 
     <?php if (isset($_GET['treatment'])): ?>
         <div class="form-section">
@@ -100,7 +106,7 @@ if (isset($_GET['treatment'])) {
                     <textarea name="treatment_text" rows="10" style="width:100%;"><?= htmlspecialchars($treatment['treatment_text'] ?? '') ?></textarea>
                 </div>
                 <button type="submit" name="update_treatment" class="btn">💾 Сохранить лечение</button>
-                <a href="animals_edit.php" class="btn btn-gray">Отмена</a>
+                <a href="animals_edit.php?token=<?= urlencode($token) ?>" class="btn btn-gray">Отмена</a>
             </form>
         </div>
     <?php endif; ?>
@@ -173,14 +179,14 @@ if (isset($_GET['treatment'])) {
                 </div>
                 <div class="form-group">
                     <label>Характер:</label>
-                    <textarea name="character_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['character_desc'] ?? '') ?>
-                    </textarea></div>
+                    <textarea name="character_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['character_desc'] ?? '') ?></textarea>
+                </div>
                 <div class="form-group">
                     <label>Здоровье:</label>
                     <textarea name="health_desc" rows="3" style="width:100%;"><?= htmlspecialchars($edit_details['health_desc'] ?? '') ?></textarea>
                 </div>
                 <button type="submit" name="edit" class="btn">💾 Сохранить</button>
-                <a href="animals_edit.php" class="btn btn-gray">Отмена</a>
+                <a href="animals_edit.php?token=<?= urlencode($token) ?>" class="btn btn-gray">Отмена</a>
             </form>
         </div>
     <?php endif; ?>
@@ -189,15 +195,15 @@ if (isset($_GET['treatment'])) {
     <div style="overflow-x: auto;">
         <table style="width: 100%;">
             <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Кличка</th>
-                    <th>Вид</th>
-                    <th>Порода</th>
-                    <th>Возраст</th>
-                    <th>Статус</th>
-                    <th>Действия</th>
-                </tr>
+            <tr>
+                <th>ID</th>
+                <th>Кличка</th>
+                <th>Вид</th>
+                <th>Порода</th>
+                <th>Возраст</th>
+                <th>Статус</th>
+                <th>Действия</th>
+            </tr>
             </thead>
             <tbody>
             <?php foreach ($animals as $animal): ?>
@@ -209,9 +215,9 @@ if (isset($_GET['treatment'])) {
                     <td><?= $animal['age'] ?></td>
                     <td><?= $animal['status'] ?></td>
                     <td>
-                        <a href="animals_edit.php?edit=<?= $animal['id'] ?>" class="btn btn-gray btn-small">Изменить</a>
-                        <a href="animals_edit.php?treatment=<?= $animal['id'] ?>" class="btn btn-gray btn-small">Лечение</a>
-                        <a href="animals_edit.php?delete=<?= $animal['id'] ?>" class="btn btn-gray btn-small" onclick="return confirm('Удалить?')">Удалить</a>
+                        <a href="animals_edit.php?edit=<?= $animal['id'] ?>&token=<?= urlencode($token) ?>" class="btn btn-gray btn-small">Изменить</a>
+                        <a href="animals_edit.php?treatment=<?= $animal['id'] ?>&token=<?= urlencode($token) ?>" class="btn btn-gray btn-small">Лечение</a>
+                        <a href="animals_edit.php?delete=<?= $animal['id'] ?>&token=<?= urlencode($token) ?>" class="btn btn-gray btn-small" onclick="return confirm('Удалить?')">Удалить</a>
                     </td>
                 </tr>
             <?php endforeach; ?>

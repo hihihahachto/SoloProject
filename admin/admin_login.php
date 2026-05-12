@@ -1,13 +1,27 @@
 <?php
-session_start();
+require_once '../model/database.php';
+
+$error = '';
 
 if ($_POST) {
-    if ($_POST['password'] == '12345') {
-        $_SESSION['admin'] = true;
-        header('Location: admin_panel.php');
+    $login = $_POST['login'];
+    $password = $_POST['password'];
+
+    // Ищем админа по логину
+    $sql = "SELECT * FROM admins WHERE login = :login";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':login' => $login]);
+    $admin = $stmt->fetch();
+
+    // Проверяем пароль как обычный текст (без хеша)
+    if ($admin && $password == $admin['password']) {
+        // Берём токен из БД и передаём его в GET
+        $token = $admin['token'];
+        header("Location: admin_panel.php?token=" . urlencode($token));
         exit;
+    } else {
+        $error = 'Неверный логин или пароль';
     }
-    $error = 'Неверный пароль';
 }
 ?>
 
@@ -51,8 +65,11 @@ if ($_POST) {
 
 <div class="login-box">
     <h1 style="color: #1a5a1e;">Вход для админа</h1>
-    <?php if (isset($error)) echo "<div class='error'>$error</div>"; ?>
+    <?php if ($error): ?>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
     <form method="POST">
+        <input type="text" name="login" placeholder="Логин" required>
         <input type="password" name="password" placeholder="Пароль" required>
         <button type="submit">Войти</button>
     </form>

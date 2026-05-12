@@ -1,6 +1,6 @@
 <?php
-require_once '../model/Database.php';
-require_once '../controller/AnimalController.php';
+require_once '../model/database.php';
+require_once '../model/AnimalController.php';
 
 $id = $_GET['id'];
 $animal = getAnimalById($pdo, $id);
@@ -30,7 +30,7 @@ $details = getAnimalDetails($pdo, $id);
             <p><strong>Здоровье:</strong> <?= $details['health_desc'] ?></p>
             <div style="background:#e8f5e9; padding:20px; border-radius:15px;">
                 <h3>📖 История</h3>
-                <p><?= nl2br($details['text']) ?></p>
+                <p><?= nl2br($details['story']) ?></p>
             </div>
         <?php else: ?>
             <p><strong>Характер:</strong> Не указан</p>

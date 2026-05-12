@@ -1,20 +1,21 @@
 <?php
-session_start();
-if (!isset($_SESSION['admin'])) {
-    header('Location: admin_login.php');
-    exit;
+require_once '../model/database.php';
+
+// Получаем токен из адресной строки
+$token = $_GET['token'] ?? '';
+
+// Проверяем, есть ли такой токен в БД
+$sql = "SELECT * FROM admins WHERE token = :token";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':token' => $token]);
+$admin = $stmt->fetch();
+
+// Если токен неверный — выкидываем
+if (!$admin) {
+    die('Доступ запрещён. Неверный токен.');
 }
 
-require_once '../model/Database.php';
-
-if (isset($_GET['read'])) {
-    $sql = "UPDATE notifications SET is_read = 1 WHERE id = :id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([':id' => $_GET['read']]);
-    header('Location: admin_panel.php');
-    exit;
-}
-
+// Если всё ок — показываем админ-панель
 $unreadCount = getUnreadCount($pdo);
 $notifications = getUnreadNotifications($pdo);
 ?>
@@ -30,13 +31,8 @@ $notifications = getUnreadNotifications($pdo);
         .admin-menu a { display: block; background: white; margin: 20px; padding: 20px; border-radius: 20px; text-decoration: none; color: #1a5a1e; font-size: 18px; transition: 0.3s; }
         .admin-menu a:hover { background: #e8f5e9; transform: translateY(-3px); }
         .notifications-box { background: white; border-radius: 20px; padding: 20px; margin-bottom: 30px; text-align: left; }
-        .notifications-box h3 { margin-bottom: 15px; }
-        .notification { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .notification:last-child { border-bottom: none; }
-        .notification-date { color: #999; font-size: 12px; }
-        .read-link { color: #2e7d32; text-decoration: none; font-size: 12px; }
-        .no-notifications { color: #999; text-align: center; padding: 20px; }
         .badge { background: #ea2929; color: white; border-radius: 50%; padding: 2px 8px; font-size: 12px; margin-left: 10px; }
+        .token-info { background: #fff3cd; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-size: 12px; word-break: break-all; }
     </style>
 </head>
 <body style="background: #f0f7f0;">
@@ -44,26 +40,22 @@ $notifications = getUnreadNotifications($pdo);
 <div class="admin-menu">
     <h1 style="color: #1a5a1e;">Админ панель</h1>
 
-    <div class="notifications-box">
-        <h3>🔔 Уведомления <span class="badge"><?= $unreadCount ?></span></h3>
-        <?php if (empty($notifications)): ?>
-            <div class="no-notifications">Нет новых уведомлений</div>
-        <?php else: ?>
-            <?php foreach ($notifications as $notif): ?>
-                <div class="notification">
-                    <div>
-                        <span><?= htmlspecialchars($notif['message']) ?></span>
-                        <div class="notification-date"><?= $notif['created_at'] ?></div>
-                    </div>
-                    <a href="admin_panel.php?read=<?= $notif['id'] ?>" class="read-link">Прочитано</a>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
+    <div class="token-info">
+        ⚠️ Ваш токен: <code><?= htmlspecialchars($token) ?></code><br>
+        Сохраните ссылку: <code>admin_panel.php?token=<?= htmlspecialchars($token) ?></code>
     </div>
 
-    <a href="animals_edit.php">Редактировать животных</a>
-    <a href="volunteers_edit.php">Редактировать волонтёров</a>
-    <a href="logout.php">Выйти</a>
+    <div class="notifications-box">
+        <h3>🔔 Уведомления <span class="badge"><?= $unreadCount ?></span></h3>
+        <?php foreach ($notifications as $notif): ?>
+            <div style="padding: 8px; border-bottom: 1px solid #eee;"><?= htmlspecialchars($notif['message']) ?> (<?= $notif['created_at'] ?>)</div>
+        <?php endforeach; ?>
+        <?php if (empty($notifications)) echo "<div>Нет новых уведомлений</div>"; ?>
+    </div>
+
+    <a href="animals_edit.php?token=<?= urlencode($token) ?>">🐾 Редактировать животных</a>
+    <a href="volunteers_edit.php?token=<?= urlencode($token) ?>">🙋 Редактировать волонтёров</a>
+    <a href="admin_login.php">🚪 Выйти</a>
     <a href="../views/foundation.php">← На сайт</a>
 </div>
 

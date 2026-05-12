@@ -1,6 +1,6 @@
 <?php
-require_once '../model/Database.php';
-require_once '../controller/AnimalController.php';
+require_once '../model/database.php';
+require_once '../model/AnimalController.php';
 
 $id = $_GET['id'];
 $details = getAnimalDetails($pdo, $id);

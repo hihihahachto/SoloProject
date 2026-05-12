@@ -1,6 +1,6 @@
 <?php
-require_once '../model/Database.php';
-require_once '../controller/VolunteerController.php';
+require_once '../model/database.php';
+require_once '../model/VolunteerController.php';
 
 $volunteers = getAllVolunteers($pdo);
 ?>
