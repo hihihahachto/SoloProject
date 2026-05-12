@@ -7,15 +7,12 @@ if ($_POST) {
     $login = $_POST['login'];
     $password = $_POST['password'];
 
-    // Ищем админа по логину
     $sql = "SELECT * FROM admins WHERE login = :login";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([':login' => $login]);
     $admin = $stmt->fetch();
 
-    // Проверяем пароль как обычный текст (без хеша)
     if ($admin && $password == $admin['password']) {
-        // Берём токен из БД и передаём его в GET
         $token = $admin['token'];
         header("Location: admin_panel.php?token=" . urlencode($token));
         exit;

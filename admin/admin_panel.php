@@ -10,12 +10,10 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([':token' => $token]);
 $admin = $stmt->fetch();
 
-// Если токен неверный — выкидываем
 if (!$admin) {
     die('Доступ запрещён. Неверный токен.');
 }
 
-// Если всё ок — показываем админ-панель
 $unreadCount = getUnreadCount($pdo);
 $notifications = getUnreadNotifications($pdo);
 ?>
@@ -40,11 +38,6 @@ $notifications = getUnreadNotifications($pdo);
 <div class="admin-menu">
     <h1 style="color: #1a5a1e;">Админ панель</h1>
 
-    <div class="token-info">
-        ⚠️ Ваш токен: <code><?= htmlspecialchars($token) ?></code><br>
-        Сохраните ссылку: <code>admin_panel.php?token=<?= htmlspecialchars($token) ?></code>
-    </div>
-
     <div class="notifications-box">
         <h3>🔔 Уведомления <span class="badge"><?= $unreadCount ?></span></h3>
         <?php foreach ($notifications as $notif): ?>
@@ -53,9 +46,9 @@ $notifications = getUnreadNotifications($pdo);
         <?php if (empty($notifications)) echo "<div>Нет новых уведомлений</div>"; ?>
     </div>
 
-    <a href="animals_edit.php?token=<?= urlencode($token) ?>">🐾 Редактировать животных</a>
-    <a href="volunteers_edit.php?token=<?= urlencode($token) ?>">🙋 Редактировать волонтёров</a>
-    <a href="admin_login.php">🚪 Выйти</a>
+    <a href="animals_edit.php?token=<?= urlencode($token) ?>">Редактировать животных</a>
+    <a href="volunteers_edit.php?token=<?= urlencode($token) ?>">Редактировать волонтёров</a>
+    <a href="admin_login.php">Выйти</a>
     <a href="../views/foundation.php">← На сайт</a>
 </div>
 

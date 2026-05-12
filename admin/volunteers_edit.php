@@ -12,7 +12,7 @@ if (!$admin) {
     die('Доступ запрещён. Авторизуйтесь заново.');
 }
 
-require_once '../controller/VolunteerController.php';
+require_once '../model/VolunteerController.php';
 
 if (isset($_GET['delete'])) {
     deleteVolunteer($pdo, $_GET['delete']);

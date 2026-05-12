@@ -12,7 +12,7 @@ if (!$admin) {
     die('Доступ запрещён. Авторизуйтесь заново.');
 }
 
-require_once '../controller/AnimalController.php';
+require_once '../model/AnimalController.php';
 
 if (isset($_GET['delete'])) {
     deleteAnimal($pdo, $_GET['delete']);

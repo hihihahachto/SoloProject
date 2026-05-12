@@ -41,8 +41,7 @@ function getAnimal($pdo, $id)
 
 function addAnimal($pdo, $data)
 {
-    $sql = "INSERT INTO animals (name, species, breed, age, status, photo_url) 
-            VALUES (:name, :species, :breed, :age, :status, :photo_url)";
+    $sql = "INSERT INTO animals (name, species, breed, age, status, photo_url) VALUES (:name, :species, :breed, :age, :status, :photo_url)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         'name' => $data['name'],
@@ -63,14 +62,7 @@ function addAnimal($pdo, $data)
 
 function updateAnimal($pdo, $id, $data)
 {
-    $sql = "UPDATE animals SET 
-            name = :name, 
-            species = :species, 
-            breed = :breed, 
-            age = :age, 
-            status = :status, 
-            photo_url = :photo_url 
-            WHERE id = :id";
+    $sql = "UPDATE animals SET name = :name, species = :species, breed = :breed, age = :age, status = :status, photo_url = :photo_url WHERE id = :id";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         'name' => $data['name'],

@@ -1,6 +1,4 @@
 <?php
-// model/database.php
-// Единое подключение к БД для всего проекта
 
 $host = 'localhost';
 $dbname = 'shelter';
@@ -14,7 +12,7 @@ try {
     die("Ошибка подключения к БД: " . $e->getMessage());
 }
 
-// Функции уведомлений оставим здесь для совместимости
+// Функции уведомлений
 function addNotification($pdo, $message, $type) {
     $sql = "INSERT INTO notifications (message, type, is_read, created_at) VALUES (:message, :type, 0, CURDATE())";
     $stmt = $pdo->prepare($sql);
