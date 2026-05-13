@@ -1,8 +1,8 @@
 <?php
-// Сначала подключаем БД
-require_once '../model/database.php';
 
-// Проверяем токен
+require_once 'database.php';
+
+
 $token = $_GET['token'] ?? '';
 $sql = "SELECT * FROM admins WHERE token = :token";
 $stmt = $pdo->prepare($sql);
@@ -12,7 +12,7 @@ if (!$admin) {
     die('Доступ запрещён. Авторизуйтесь заново.');
 }
 
-require_once '../model/VolunteerController.php';
+require_once '../SoloProject/api/controller/VolunteerController.php';
 
 if (isset($_GET['delete'])) {
     deleteVolunteer($pdo, $_GET['delete']);
@@ -45,7 +45,7 @@ if (isset($_GET['edit'])) {
 <head>
     <meta charset="UTF-8">
     <title>Волонтёры</title>
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../../front/css/main.css">
     <style>
         .container { max-width: 1200px; margin: 40px auto; background: white; padding: 30px; border-radius: 20px; }
         table { width: 100%; border-collapse: collapse; }

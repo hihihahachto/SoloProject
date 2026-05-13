@@ -1,6 +1,6 @@
 <?php
-require_once '../model/database.php';
-require_once '../model/VolunteerController.php';
+require_once 'database.php';
+require_once '../SoloProject/api/controller/VolunteerController.php';
 
 $volunteers = getAllVolunteers($pdo);
 ?>
@@ -9,7 +9,7 @@ $volunteers = getAllVolunteers($pdo);
 <head>
     <meta charset="UTF-8">
     <title>Волонтёры</title>
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../front/css/main.css">
     <style>
         .volunteers-page {
             max-width: 1400px;
@@ -118,7 +118,7 @@ $volunteers = getAllVolunteers($pdo);
         <?php endif; ?>
 
         <div style="text-align: center; margin-top: 30px;">
-            <a href="volunteer_form.php" class="btn">🤝 Присоединиться к волонтёрам</a>
+            <a href="volunteer_form.php" class="btn">Присоединиться к волонтёрам</a>
         </div>
     </div>
 
@@ -176,6 +176,12 @@ $volunteers = getAllVolunteers($pdo);
 <div class="footer">
     <p><a href="foundation.php">← На главную</a></p>
 </div>
-
+<script src="api.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const volunteers = await VolunteersAPI.getAll();
+        console.log('Волонтёры:', volunteers);
+    });
+</script>
 </body>
 </html>

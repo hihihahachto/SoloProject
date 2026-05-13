@@ -1,5 +1,5 @@
 <?php
-require_once '../model/database.php';
+require_once 'database.php';
 
 $id = $_GET['id'];
 
@@ -21,12 +21,10 @@ if ($_POST) {
         $sql = "INSERT INTO adoptions (animal_id, adopter_name, adopter_phone, adoption_date) VALUES (:animal_id, :name, :phone, CURDATE())";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
-            ':animal_id' => $id,
-            ':name' => $name,
-            ':phone' => $phone
+                ':animal_id' => $id,
+                ':name' => $name,
+                ':phone' => $phone
         ]);
-
-        addNotification($pdo, "Новая заявка на усыновление {$animal['name']} от $name", 'adoption');
     }
 
     echo "<div style='text-align:center; padding:50px;'>

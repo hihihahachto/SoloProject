@@ -1,6 +1,6 @@
 <?php
-require_once '../model/database.php';
-require_once '../model/AnimalController.php';
+require_once 'database.php';
+require_once '../SoloProject/api/controller/AnimalController.php';
 
 $id = $_GET['id'];
 $details = getAnimalDetails($pdo, $id);

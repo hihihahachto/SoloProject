@@ -1,6 +1,6 @@
 <?php
-require_once '../model/database.php';
-require_once '../model/AnimalController.php';
+require_once 'database.php';
+require_once '../SoloProject/api/controller/AnimalController.php';
 
 $filter = $_GET['species'] ?? 'all';
 
@@ -58,5 +58,18 @@ if ($filter == 'cat') {
 <div class="footer">
     <p><a href="foundation.php">На главную</a></p>
 </div>
+<script src="api.js"></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            const animals = await AnimalsAPI.getAll();
+            console.log('Загружено животных:', animals);
+
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+        }
+    });
+</script>
 </body>
 </html>

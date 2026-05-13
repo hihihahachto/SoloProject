@@ -1,5 +1,5 @@
 <?php
-require_once '../model/database.php';
+require_once 'database.php';
 
 $error = '';
 
@@ -27,7 +27,7 @@ if ($_POST) {
 <head>
     <meta charset="UTF-8">
     <title>Вход для админа</title>
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../../front/css/main.css">
     <style>
         .login-box {
             max-width: 400px;
@@ -70,7 +70,7 @@ if ($_POST) {
         <input type="password" name="password" placeholder="Пароль" required>
         <button type="submit">Войти</button>
     </form>
-    <p style="margin-top: 20px;"><a href="../views/foundation.php" style="color: #666;">← На главную</a></p>
+    <p style="margin-top: 20px;"><a href="foundation.php" style="color: #666;">← На главную</a></p>
 </div>
 
 </body>
