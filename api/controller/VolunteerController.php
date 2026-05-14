@@ -27,6 +27,7 @@ function addVolunteer($pdo, $name, $phone, $skill, $photo_url)
         ':skill' => $skill,
         ':photo_url' => $photo_url
     ]);
+    return $pdo->lastInsertId();
 }
 
 function updateVolunteer($pdo, $id, $full_name, $phone, $skill, $photo_url)
@@ -57,42 +58,61 @@ function checkVolunteerByPhone($pdo, $phone)
     return $stmt->fetch();
 }
 
+// ========== API ФУНКЦИИ ДЛЯ index.php ==========
+
 function getAllVolunteersApi($pdo) {
-    $stmt = $pdo->query("SELECT * FROM volunteers ORDER BY id");
-    $volunteers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $volunteers = getAllVolunteers($pdo);
     echo json_encode($volunteers, JSON_UNESCAPED_UNICODE);
 }
 
-function addVolunteerApi($pdo, $data) {
-    $sql = "INSERT INTO volunteers (full_name, phone, skill, photo_url) VALUES (?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        $data['full_name'],
-        $data['phone'],
-        $data['skill'],
-        $data['photo_url'] ?? null
-    ]);
+function addVolunteerApi($pdo) {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $exists = checkVolunteerByPhone($pdo, $data['phone']);
+    if ($exists) {
+        http_response_code(400);
+        echo json_encode([
+            'status' => false,
+            'message' => 'Волонтёр с таким телефоном уже зарегистрирован'
+        ], JSON_UNESCAPED_UNICODE);
+        return;
+    }
+
+    $id = addVolunteer($pdo, $data['full_name'], $data['phone'], $data['skill'], $data['photo_url'] ?? null);
 
     http_response_code(201);
     echo json_encode([
         'status' => true,
         'message' => 'Volunteer added successfully',
-        'id' => $pdo->lastInsertId()
+        'id' => $id
     ], JSON_UNESCAPED_UNICODE);
 }
 
-function deleteVolunteerApi($pdo, $id) {
-    $stmt = $pdo->prepare("SELECT id FROM volunteers WHERE id = ?");
-    $stmt->execute([$id]);
+function updateVolunteerApi($pdo, $id) {
+    $data = json_decode(file_get_contents('php://input'), true);
 
-    if (!$stmt->fetch()) {
+    $volunteer = getVolunteerById($pdo, $id);
+    if (!$volunteer) {
         http_response_code(404);
         echo json_encode(['status' => false, 'message' => 'Volunteer not found'], JSON_UNESCAPED_UNICODE);
         return;
     }
 
-    $stmt = $pdo->prepare("DELETE FROM volunteers WHERE id = ?");
-    $stmt->execute([$id]);
+    updateVolunteer($pdo, $id,
+        $data['full_name'] ?? $volunteer['full_name'],
+        $data['phone'] ?? $volunteer['phone'],
+        $data['skill'] ?? $volunteer['skill'],
+        $data['photo_url'] ?? $volunteer['photo_url']
+    );
+
+    echo json_encode([
+        'status' => true,
+        'message' => 'Volunteer updated successfully'
+    ], JSON_UNESCAPED_UNICODE);
+}
+
+function deleteVolunteerApi($pdo, $id) {
+    deleteVolunteer($pdo, $id);
 
     echo json_encode([
         'status' => true,

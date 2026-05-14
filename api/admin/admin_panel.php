@@ -33,7 +33,7 @@ if (!$admin) {
     <a href="animals_edit.php?token=<?= urlencode($token) ?>">Редактировать животных</a>
     <a href="volunteers_edit.php?token=<?= urlencode($token) ?>">Редактировать волонтёров</a>
     <a href="admin_login.php">Выйти</a>
-    <a href="foundation.php">← На сайт</a>
+    <a href="foundation.php">
 </div>
 
 </body>

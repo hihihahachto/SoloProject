@@ -1,4 +1,3 @@
-// front/js/api.js
 const API = '/SoloProject/api/index.php';
 
 async function apiRequest(endpoint, method = 'GET', data = null) {
@@ -33,5 +32,6 @@ const AnimalsAPI = {
 
 const VolunteersAPI = {
     getAll: () => apiRequest('volunteers'),
-    create: (data) => apiRequest('volunteers', 'POST', data)
+    create: (data) => apiRequest('volunteers', 'POST', data),
+    delete: (id) => apiRequest(`volunteers/${id}`, 'DELETE')
 };

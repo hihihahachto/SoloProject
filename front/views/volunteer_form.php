@@ -7,7 +7,7 @@ require_once '../SoloProject/api/controller/VolunteerController.php';
 <head>
     <meta charset="UTF-8">
     <title>Стать волонтёром</title>
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 <div class="header"><h1>Стать <span>волонтёром</span></h1></div>
@@ -30,7 +30,7 @@ require_once '../SoloProject/api/controller/VolunteerController.php';
 </div>
 <div class="footer"><p><a href="foundation.php">На главную</a></p></div>
 
-<script src="api.js"></script>
+<script src="../js/api.js"></script>
 <script>
     document.getElementById('volunteerForm').addEventListener('submit', async function(e) {
         e.preventDefault();

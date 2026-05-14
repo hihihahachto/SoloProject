@@ -42,7 +42,7 @@ if ($_POST) {
 <head>
     <meta charset="UTF-8">
     <title>Усыновить <?= $animal['name'] ?></title>
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../front/css/main.css">
 </head>
 <body>
 <div class="header"><h1>Усыновить <span><?= $animal['name'] ?></span></h1></div>

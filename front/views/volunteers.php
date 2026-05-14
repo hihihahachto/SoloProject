@@ -9,7 +9,7 @@ $volunteers = getAllVolunteers($pdo);
 <head>
     <meta charset="UTF-8">
     <title>Волонтёры</title>
-    <link rel="stylesheet" href="../front/css/main.css">
+    <link rel="stylesheet" href="../css/main.css">
     <style>
         .volunteers-page {
             max-width: 1400px;
@@ -48,10 +48,9 @@ $volunteers = getAllVolunteers($pdo);
             padding: 10px 0;
             border-bottom: 1px solid #eee;
             display: flex;
-            align-items: center;}
-        .
-            gap: 10px;
-        need-badge {
+            align-items: center;
+        }
+        .need-badge {
             background: #e0ecd0;
             color: #4a6e4a;
             padding: 5px 12px;
@@ -84,29 +83,25 @@ $volunteers = getAllVolunteers($pdo);
 </div>
 
 <div class="volunteers-page">
-
-    <!-- Левая колонка: список волонтёров -->
     <div class="volunteers-list">
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
             <?php foreach ($volunteers as $vol): ?>
                 <div class="card" style="margin:0;">
                     <?php if ($vol['photo_url']): ?>
-                        <img src="<?= $vol['photo_url'] ?>" class="card-img-top" alt="<?= $vol['full_name'] ?>" style="height: 200px; object-fit: cover;">
+                        <img src="<?= $vol['photo_url'] ?>" style="height: 200px; width:100%; object-fit: cover; border-radius:15px;">
                     <?php else: ?>
-                        <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=300" class="card-img-top" alt="Волонтёр" style="height: 200px; object-fit: cover;">
+                        <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=300" style="height: 200px; width:100%; object-fit: cover; border-radius:15px;">
                     <?php endif; ?>
-                    <div class="card-body">
-                        <h3 style="margin: 0 0 5px 0;"><?= htmlspecialchars($vol['full_name']) ?></h3>
-                        <p style="color: #666; margin-bottom: 10px;">📞 <?= $vol['phone'] ?></p>
-                            <?php
-                            $skill_rus = '';
-                            if ($vol['skill'] == 'feeding') $skill_rus = 'Кормление';
-                            if ($vol['skill'] == 'walking') $skill_rus = 'Выгул';
-                            if ($vol['skill'] == 'medical') $skill_rus = 'Медицина';
-                            if ($vol['skill'] == 'cleaning') $skill_rus = 'Уборка';
-                            ?>
-                            <span class="need-badge"><?= $skill_rus ?></span>
-                    </div>
+                    <h3 style="margin: 15px 0 5px 0;"><?= htmlspecialchars($vol['full_name']) ?></h3>
+                    <p style="color: #666; margin-bottom: 10px;">📞 <?= $vol['phone'] ?></p>
+                    <?php
+                    $skill_rus = '';
+                    if ($vol['skill'] == 'feeding') $skill_rus = 'Кормление';
+                    if ($vol['skill'] == 'walking') $skill_rus = 'Выгул';
+                    if ($vol['skill'] == 'medical') $skill_rus = 'Медицина';
+                    if ($vol['skill'] == 'cleaning') $skill_rus = 'Уборка';
+                    ?>
+                    <span class="need-badge"><?= $skill_rus ?></span>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -118,11 +113,10 @@ $volunteers = getAllVolunteers($pdo);
         <?php endif; ?>
 
         <div style="text-align: center; margin-top: 30px;">
-            <a href="volunteer_form.php" class="btn">Присоединиться к волонтёрам</a>
+            <a href="volunteer_form.php" class="btn">🤝 Присоединиться к волонтёрам</a>
         </div>
     </div>
 
-    <!-- Правая колонка: информация -->
     <div class="info-sidebar">
         <div class="info-card">
             <h3>🌟 Почему волонтёры важны?</h3>
@@ -138,11 +132,10 @@ $volunteers = getAllVolunteers($pdo);
         <div class="info-card">
             <h3>🙋 Кого мы ищем?</h3>
             <ul>
-                <li><span class="need-badge">Кормление</span> — помощь с кормлением животных</li>
+                <li><span class="need-badge">Кормление</span> — помощь с кормлением</li>
                 <li><span class="need-badge">Выгул</span> — прогулки с собаками</li>
                 <li><span class="need-badge">Медицина</span> — помощь в лечении</li>
                 <li><span class="need-badge">Уборка</span> — поддержание чистоты</li>
-                <li><span class="need-badge">Администрирование</span> — помощь с соцсетями и документами</li>
             </ul>
         </div>
 
@@ -150,24 +143,13 @@ $volunteers = getAllVolunteers($pdo);
             <h3>📊 Наша статистика</h3>
             <p><span class="stat-number"><?= count($volunteers) ?></span> <br>активных волонтёров</p>
             <p><span class="stat-number">150+</span> <br>животных спасено за год</p>
-            <p><span class="stat-number">24/7</span> <br>забота о питомцах</p>
-        </div>
-
-        <div class="info-card">
-            <h3>💚 Что вы получите?</h3>
-            <ul>
-                <li>✓ Благодарность животных и команды</li>
-                <li>✓ Новые знакомства и опыт</li>
-                <li>✓ Сертификат волонтёра</li>
-                <li>✓ Тёплые письма от питомцев</li>
-            </ul>
         </div>
 
         <div class="info-card">
             <div class="quote">
                 "Однажды я пришла покормить кошек, а осталась навсегда. Это лучшее решение в моей жизни!"
                 <br><br>
-                <strong>— Анна, волонтёр с 3-летним стажем</strong>
+                <strong>— Анна, волонтёр</strong>
             </div>
         </div>
     </div>
@@ -176,7 +158,7 @@ $volunteers = getAllVolunteers($pdo);
 <div class="footer">
     <p><a href="foundation.php">← На главную</a></p>
 </div>
-<script src="api.js"></script>
+<script src="../js/api.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', async function() {
         const volunteers = await VolunteersAPI.getAll();

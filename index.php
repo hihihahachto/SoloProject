@@ -1,68 +1,74 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 require 'database.php';
 require '../SoloProject/api/controller/AnimalController.php';
 require '../SoloProject/api/controller/VolunteerController.php';
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Methods: *");
+header("Access-Control-Allow-Credentials: true");
+header("Content-Type: application/json");
 
 $method = $_SERVER['REQUEST_METHOD'];
 $q = $_GET['q'] ?? '';
-$params = $q ? explode('/', $q) : [];
-$type = $params[0] ?? null;
+$params = explode('/', $q);
+
+$type = $params[0] ?? '';
 $id = $params[1] ?? null;
 
-function sendJson($data, $code = 200) {
-    http_response_code($code);
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-switch ($method) {
-    case 'GET':
-        if ($type === 'animals') {
-            if ($id) {
-                getAnimalByIdApi($pdo, $id);
-            } else {
-                getAllAnimalsApi($pdo);
-            }
-        } elseif ($type === 'volunteers') {
-            getAllVolunteersApi($pdo);
-        } else {
-            sendJson(['error' => 'Not found'], 404);
+switch ($type) {
+    case 'animals':
+        switch ($method) {
+            case 'GET':
+                if ($id) {
+                    getAnimalByIdApi($pdo, $id);
+                } else {
+                    getAllAnimalsApi($pdo);
+                }
+                break;
+            case 'POST':
+                addAnimalApi($pdo);
+                break;
+            case 'PUT':
+                if ($id) {
+                    updateAnimalApi($pdo, $id);
+                }
+                break;
+            case 'DELETE':
+                if ($id) {
+                    deleteAnimalApi($pdo, $id);
+                }
+                break;
         }
         break;
 
-    case 'POST':
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data) sendJson(['error' => 'Invalid JSON'], 400);
-
-        if ($type === 'animals') {
-            addAnimalApi($pdo, $data);
-        } elseif ($type === 'volunteers') {
-            addVolunteerApi($pdo, $data);
-        } else {
-            sendJson(['error' => 'Not found'], 404);
-        }
-        break;
-
-    case 'DELETE':
-        if ($type === 'animals' && $id) {
-            deleteAnimalApi($pdo, $id);
-        } elseif ($type === 'volunteers' && $id) {
-            // ДОБАВЛЯЕМ УДАЛЕНИЕ ВОЛОНТЁРА
-            deleteVolunteerApi($pdo, $id);
-        } else {
-            sendJson(['error' => 'Not found'], 404);
+    case 'volunteers':
+        switch ($method) {
+            case 'GET':
+                if ($id) {
+                    getVolunteerByIdApi($pdo, $id);
+                } else {
+                    getAllVolunteersApi($pdo);
+                }
+                break;
+            case 'POST':
+                addVolunteerApi($pdo);
+                break;
+            case 'PUT':
+                if ($id) {
+                    updateVolunteerApi($pdo, $id);
+                }
+                break;
+            case 'DELETE':
+                if ($id) {
+                    deleteVolunteerApi($pdo, $id);
+                }
+                break;
         }
         break;
 
     default:
-        sendJson(['error' => 'Method not allowed'], 405);
+        http_response_code(404);
+        echo json_encode(['error' => 'Операция не найдена']);
+        break;
 }

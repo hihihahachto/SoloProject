@@ -88,16 +88,15 @@ function updateAnimalDetails($pdo, $id, $character_desc, $health_desc)
     }
 }
 
+// ========== API ФУНКЦИИ ДЛЯ index.php ==========
+
 function getAllAnimalsApi($pdo) {
-    $stmt = $pdo->query("SELECT * FROM animals ORDER BY id");
-    $animals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $animals = getAllAnimals($pdo);
     echo json_encode($animals, JSON_UNESCAPED_UNICODE);
 }
 
 function getAnimalByIdApi($pdo, $id) {
-    $stmt = $pdo->prepare("SELECT * FROM animals WHERE id = ?");
-    $stmt->execute([$id]);
-    $animal = $stmt->fetch(PDO::FETCH_ASSOC);
+    $animal = getAnimalById($pdo, $id);
 
     if (!$animal) {
         http_response_code(404);
@@ -105,10 +104,7 @@ function getAnimalByIdApi($pdo, $id) {
         return;
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM animal_details WHERE animal_id = ?");
-    $stmt->execute([$id]);
-    $details = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    $details = getAnimalDetails($pdo, $id);
     if ($details) {
         $animal['character_desc'] = $details['character_desc'];
         $animal['health_desc'] = $details['health_desc'];
@@ -119,29 +115,53 @@ function getAnimalByIdApi($pdo, $id) {
     echo json_encode($animal, JSON_UNESCAPED_UNICODE);
 }
 
-function addAnimalApi($pdo, $data) {
-    $sql = "INSERT INTO animals (name, species, breed, age, status, photo_url) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
+function addAnimalApi($pdo) {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $id = addAnimal($pdo,
         $data['name'],
         $data['species'],
         $data['breed'] ?? null,
         $data['age'] ?? null,
         $data['status'],
         $data['photo_url'] ?? null
-    ]);
+    );
 
     http_response_code(201);
     echo json_encode([
         'status' => true,
         'message' => 'Animal added successfully',
-        'id' => $pdo->lastInsertId()
+        'id' => $id
+    ], JSON_UNESCAPED_UNICODE);
+}
+
+function updateAnimalApi($pdo, $id) {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $animal = getAnimalById($pdo, $id);
+    if (!$animal) {
+        http_response_code(404);
+        echo json_encode(['status' => false, 'message' => 'Animal not found'], JSON_UNESCAPED_UNICODE);
+        return;
+    }
+
+    updateAnimal($pdo, $id,
+        $data['name'] ?? $animal['name'],
+        $data['species'] ?? $animal['species'],
+        $data['breed'] ?? $animal['breed'],
+        $data['age'] ?? $animal['age'],
+        $data['status'] ?? $animal['status'],
+        $data['photo_url'] ?? $animal['photo_url']
+    );
+
+    echo json_encode([
+        'status' => true,
+        'message' => 'Animal updated successfully'
     ], JSON_UNESCAPED_UNICODE);
 }
 
 function deleteAnimalApi($pdo, $id) {
-    $stmt = $pdo->prepare("DELETE FROM animals WHERE id = ?");
-    $stmt->execute([$id]);
+    deleteAnimal($pdo, $id);
 
     echo json_encode([
         'status' => true,

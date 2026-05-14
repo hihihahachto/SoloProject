@@ -44,13 +44,15 @@
     <p>🐾 Приют «Вторая жизнь» — дарим надежду тем, кто в ней нуждается</p>
     <p><a href="admin_login.php">Админ-панель</a></p>
 </div>
-<script src="api.js"></script>
-<script>
 
+<script src="../js/api.js"></script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        AnimalsAPI.getAll().then(animals => {
-            console.log('В приюте животных:', animals.length);
-        }).catch(err => console.error('Ошибка API:', err));
+        if (typeof AnimalsAPI !== 'undefined') {
+            AnimalsAPI.getAll().then(animals => {
+                console.log('В приюте животных:', animals.length);
+            }).catch(err => console.error('Ошибка API:', err));
+        }
     });
 </script>
 </body>

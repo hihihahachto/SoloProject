@@ -40,7 +40,7 @@ if ($filter == 'cat') {
     <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:30px; margin-top:30px;">
         <?php foreach ($animals as $animal): ?>
             <div class="card">
-                <img src="<?= $animal['photo_url'] ?>" style="height:200px; width:100%; object-fit:cover;">
+                <img src="<?= $animal['photo_url'] ?>" style="height:200px; width:100%; object-fit:cover; border-radius:15px;">
                 <h3><?= $animal['name'] ?></h3>
                 <p><?= $animal['species'] ?> • <?= $animal['age'] ?> мес.</p>
                 <div style="display:flex; gap:10px; justify-content:center;">
@@ -58,14 +58,12 @@ if ($filter == 'cat') {
 <div class="footer">
     <p><a href="foundation.php">На главную</a></p>
 </div>
-<script src="api.js"></script>
+<script src="../js/api.js"></script>
 <script>
-
     document.addEventListener('DOMContentLoaded', async function() {
         try {
             const animals = await AnimalsAPI.getAll();
-            console.log('Загружено животных:', animals);
-
+            console.log('Загружено животных:', animals.length);
         } catch (error) {
             console.error('Ошибка загрузки:', error);
         }
