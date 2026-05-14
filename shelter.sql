@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Апр 27 2026 г., 06:38
+-- Время создания: Май 14 2026 г., 18:59
 -- Версия сервера: 5.7.39
 -- Версия PHP: 8.0.22
 
@@ -20,6 +20,26 @@ SET time_zone = "+00:00";
 --
 -- База данных: `shelter`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `admins`
+--
+
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL,
+  `login` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `admins`
+--
+
+INSERT INTO `admins` (`id`, `login`, `password`, `token`) VALUES
+(1, 'admin', '2525', 'mySecretAdminToken123');
 
 -- --------------------------------------------------------
 
@@ -42,7 +62,10 @@ CREATE TABLE `adoptions` (
 INSERT INTO `adoptions` (`id`, `animal_id`, `adopter_name`, `adopter_phone`, `adoption_date`) VALUES
 (13, 1, 'амам', '+2333233', '2026-04-21'),
 (14, 2, 'Настикс', '+7(961)055-12-78', '2026-04-21'),
-(15, 5, 'Мария ', '+7(999)122-45-65', '2026-04-21');
+(15, 5, 'Мария ', '+7(999)122-45-65', '2026-04-21'),
+(16, 8, 'Альмира Анимешн', '+7(999)129-45-65', '2026-05-09'),
+(17, 6, 'шншпгог', '45654', '2026-05-09'),
+(18, 7, 'пкку', 'к434242', '2026-05-10');
 
 -- --------------------------------------------------------
 
@@ -65,15 +88,14 @@ CREATE TABLE `animals` (
 --
 
 INSERT INTO `animals` (`id`, `name`, `species`, `breed`, `age`, `status`, `photo_url`) VALUES
-(1, 'Барсик', 'кот', 'дворняга', 14, 'adopted', 'https://koshka.top/uploads/posts/2021-12/1639492793_20-koshka-top-p-koshki-na-ulitse-20.jpg'),
+(1, 'Барсик', 'кот', 'дворняга', 13, 'adopted', 'https://koshka.top/uploads/posts/2021-12/1639492793_20-koshka-top-p-koshki-na-ulitse-20.jpg'),
 (2, 'Шарик', 'собака', 'лабрадор', 30, 'adopted', 'https://petsi.net/images/dogphotos/labrador-retriever.jpg'),
 (3, 'Мурка', 'кошка', 'британец', 24, 'adopted', 'https://tse3.mm.bing.net/th/id/OIP.rG6Phu5qhCMhiGlHglxOUAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3'),
 (4, 'Рыжик', 'кот', 'персидский', 8, 'adopted', 'https://tse4.mm.bing.net/th/id/OIP.LKOuCiGVPhH-defBOvvbnAHaE1?rs=1&pid=ImgDetMain&o=7&rm=3'),
 (5, 'Джек', 'собака', 'овчарка', 18, 'adopted', 'https://th.bing.com/th/id/R.db06cd489938124b16bf8a34dcf07d2d?rik=eoBOo9PwqWzmRQ&pid=ImgRaw&r=0'),
 (6, 'Муся', 'кошка', 'манчкин', 10, 'waiting', 'https://img.ixbt.site/live/images/original/08/11/28/2024/03/06/0b30733b84.jpg'),
 (7, 'Жужа', 'собака', 'той терьер', 4, 'adopted', 'https://i.oneme.ru/i?r=BTE2sh_eZW7g8kugOdIm2NotP0DFhne3JxYMkr8WndVc2YlUssIpqrbqAjkr23oeJZA'),
-(8, 'Бося', 'кошка', 'лиси попа', 18, 'adopted', 'https://i.oneme.ru/i?r=BTE2sh_eZW7g8kugOdIm2NoteD1b-TkvDM_WT3XEsGPhAIlUssIpqrbqAjkr23oeJZA'),
-(10, 'Патя', 'кошка', 'шотландская вислоухая', 20, 'adopted', 'https://i.oneme.ru/i?r=BTE2sh_eZW7g8kugOdIm2Notm2wZgx38LpI51WPZkCRZaYlUssIpqrbqAjkr23oeJZA');
+(8, 'Бося', 'кошка', 'лиси попа', 18, 'adopted', 'https://i.oneme.ru/i?r=BTE2sh_eZW7g8kugOdIm2NoteD1b-TkvDM_WT3XEsGPhAIlUssIpqrbqAjkr23oeJZA');
 
 -- --------------------------------------------------------
 
@@ -87,7 +109,7 @@ CREATE TABLE `animal_details` (
   `character_desc` text COLLATE utf8mb4_unicode_ci,
   `health_desc` text COLLATE utf8mb4_unicode_ci,
   `story` text COLLATE utf8mb4_unicode_ci,
-  `text` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `text` text COLLATE utf8mb4_unicode_ci,
   `treatment_text` text COLLATE utf8mb4_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -150,12 +172,18 @@ INSERT INTO `volunteers` (`id`, `full_name`, `phone`, `skill`, `photo_url`) VALU
 (2, 'Игорь Смирнов', '+7(999)234-56-78', 'medical', 'https://tse1.mm.bing.net/th/id/OIP.eV5rJi4HAVTaS9GO-p7AkAHaE8?w=540&h=360&rs=1&pid=ImgDetMain&o=7&rm=3'),
 (3, 'Ольга Иванова', '+7(999)345-67-89', 'walking', 'https://vzyat-pitomca.ru/uploads/s/1/z/8/1z8jyrtqycxd/img/autocrop/1811d1b1f66cc6e1747e95fda1a8880b.jpg'),
 (4, 'Дмитрий Козлов', '+7(999)456-78-90', 'cleaning', 'https://tse1.mm.bing.net/th/id/OIP.h_ExIm2aw3MvLEHz5-DUuQHaHa?w=640&h=640&rs=1&pid=ImgDetMain&o=7&rm=3'),
-(6, 'Каролина Михайловна', '+7(999)344-45-65', 'medical', 'https://cdnn11.img.sputnik.by/img/07e7/0c/13/1082165022_0:0:1280:960_1920x0_80_0_0_5da9c27e8e0ec1456c5700557e423b45.jpg.webp'),
-(12, 'Максимко', '+7(999)444-45-65', 'admin', 'https://i.oneme.ru/i?r=BTE2sh_eZW7g8kugOdIm2NotlazlqO8EneMNiP-CE2_NZYlUssIpqrbqAjkr23oeJZA');
+(6, 'Каролина Михайловна', '+7(999)344-45-65', 'medical', 'https://cdnn11.img.sputnik.by/img/07e7/0c/13/1082165022_0:0:1280:960_1920x0_80_0_0_5da9c27e8e0ec1456c5700557e423b45.jpg.webp');
 
 --
 -- Индексы сохранённых таблиц
 --
+
+--
+-- Индексы таблицы `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `login` (`login`);
 
 --
 -- Индексы таблицы `adoptions`
@@ -196,16 +224,22 @@ ALTER TABLE `volunteers`
 --
 
 --
+-- AUTO_INCREMENT для таблицы `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT для таблицы `adoptions`
 --
 ALTER TABLE `adoptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT для таблицы `animals`
 --
 ALTER TABLE `animals`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT для таблицы `animal_details`
@@ -223,7 +257,7 @@ ALTER TABLE `medical_records`
 -- AUTO_INCREMENT для таблицы `volunteers`
 --
 ALTER TABLE `volunteers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
